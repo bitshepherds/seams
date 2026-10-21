@@ -1,6 +1,7 @@
 {
   "repo": "bitshepherds/sheepdog-seams",
   "gate": "mise run check",
+  "mergeMethod": "squash",
   "profile": {
     "purpose": "Finds a system's contract boundaries (seams), and keeps a registry of each seam's provider, consumers, contract and test world.",
     "languages": [
