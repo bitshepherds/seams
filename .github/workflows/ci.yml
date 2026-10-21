@@ -4,6 +4,9 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Weekly, so a new advisory against a dependency is caught on a quiet week.
+  schedule:
+    - cron: "17 6 * * 1"
 
 permissions:
   contents: read
