@@ -7,6 +7,7 @@ go = "1.27.3"
 golangci-lint = "2.15.0"
 lefthook = "2.2.2"
 osv-scanner = "2.7.0"
+zizmor = "1.31.1"
 
 # mise install also installs the git hooks.
 [hooks]
@@ -28,6 +29,7 @@ run = [
   "betterleaks git --no-banner --redact",
   "golangci-lint run",
   "actionlint",
+  "zizmor .github/workflows/",
   "govulncheck ./...",
   "osv-scanner scan source --recursive .",
   "go test ./...",
