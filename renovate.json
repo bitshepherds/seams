@@ -3,6 +3,12 @@
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
   "enabledManagers": ["gomod", "mise", "github-actions"],
   "postUpdateOptions": ["gomodTidy"],
+  "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
+  "vulnerabilityAlerts": {
+    "description": "A security fix is adopted at once, without waiting out the age.",
+    "minimumReleaseAge": null
+  },
   "schedule": ["before 6am on monday"],
   "timezone": "Etc/UTC",
   "labels": ["dependencies"],
