@@ -1,0 +1,5 @@
+# The fast tier, before every commit. The gate, mise run check, runs the rest.
+pre-commit:
+  commands:
+    fast:
+      run: mise run fast
