@@ -1,0 +1,18 @@
+# The toolchain, pinned: `mise install` installs exactly these versions.
+[tools]
+go = "1.27.3"
+lefthook = "2.2.2"
+
+# mise install also installs the git hooks.
+[hooks]
+postinstall = "lefthook install"
+
+[tasks.fast]
+description = "The fast tier: what the pre-commit hook runs, in seconds"
+run = 'test -z "$(gofmt -l .)" && go vet ./...'
+
+# The one command that checks the repo: the gate. Each check added later adds itself here.
+[tasks.check]
+description = "Every check that fits the gate's time budget"
+depends = ["fast"]
+run = 'go test ./...'

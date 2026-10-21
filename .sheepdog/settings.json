@@ -1,0 +1,48 @@
+{
+  "repo": "bitshepherds/sheepdog-seams",
+  "gate": "mise run check",
+  "profile": {
+    "purpose": "Finds a system's contract boundaries (seams), and keeps a registry of each seam's provider, consumers, contract and test world.",
+    "languages": [
+      "Go"
+    ],
+    "kinds": [
+      "cli"
+    ],
+    "runsOn": [
+      "developers' machines",
+      "CI"
+    ],
+    "contributors": {
+      "teams": 1,
+      "people": 1
+    },
+    "data": [],
+    "compliance": [],
+    "layers": [],
+    "callsAi": false,
+    "thirdParties": [],
+    "infrastructure": [],
+    "publishes": [
+      "binaries, on GitHub releases"
+    ],
+    "deploys": "never",
+    "stage": "prototype",
+    "datastores": [],
+    "slowDependencies": [],
+    "exposesApi": "public",
+    "apiFormats": [
+      "JSON Schema"
+    ]
+  },
+  "survey": {
+    "scripts": "44136fa355b3",
+    "workspaces": "4f53cda18c2b",
+    "makeTargets": "4f53cda18c2b",
+    "ci": "338c149a0d6c",
+    "hooks": "2485ba485215",
+    "lockfiles": "4f53cda18c2b",
+    "commitlint": "4f53cda18c2b",
+    "toolchain": "5cec2de0a04f"
+  }
+}
