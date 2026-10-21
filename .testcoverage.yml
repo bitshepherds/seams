@@ -1,0 +1,7 @@
+# go-test-coverage's settings. The gate fails when coverage falls below the floor.
+profile: cover.out
+
+threshold:
+  # A ratchet: when coverage rises, raise the floor with it, in the same change.
+  # Never lower it.
+  total: 80
