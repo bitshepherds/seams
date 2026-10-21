@@ -1,0 +1,13 @@
+# yamllint's defaults, with three relaxed to fit GitHub workflows: no `---` at
+# the top, `on:` read as a key rather than a boolean, and one space before the
+# version comment that follows a pinned SHA.
+extends: default
+
+rules:
+  document-start: disable
+  truthy:
+    check-keys: false
+  comments:
+    min-spaces-from-content: 1
+  line-length:
+    max: 120
