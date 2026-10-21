@@ -7,6 +7,14 @@ linters:
   enable:
     # Security flaws.
     - gosec
+    # Dead code (already in standard; named so it stays on) and copied blocks.
+    - unused
+    - dupl
+  settings:
+    dupl:
+      # The smallest copied block it reports, in syntax-tree tokens. The
+      # default, 150, missed a copied 30-line function in a trial; 75 catches it.
+      threshold: 75
 
 formatters:
   enable:
