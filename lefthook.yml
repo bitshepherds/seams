@@ -3,3 +3,9 @@ pre-commit:
   commands:
     fast:
       run: mise run fast
+
+# Each commit message must start with a Conventional Commit header.
+commit-msg:
+  commands:
+    header:
+      run: cog verify --ignore-fixup-commits --file {1}

@@ -2,6 +2,7 @@
 [tools]
 actionlint = "1.7.12"
 betterleaks = "1.9.0"
+cocogitto = "7.0.0"
 "github:vladopajic/go-test-coverage" = "2.20.0"
 go = "1.27.3"
 "go:golang.org/x/vuln/cmd/govulncheck" = "1.9.0"

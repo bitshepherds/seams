@@ -2,6 +2,8 @@ name: ci
 
 on:
   pull_request:
+    # edited, so a retitled pull request has its title checked again.
+    types: [opened, synchronize, reopened, edited]
   push:
     branches: [main]
   # Weekly, so a new advisory against a dependency is caught on a quiet week.
@@ -21,6 +23,11 @@ jobs:
           # The whole history, so the gate's secret scan sees every commit.
           fetch-depth: 0
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      - name: The pull request title is a Conventional Commit header
+        if: github.event_name == 'pull_request'
+        run: printf '%s\n' "$PR_TITLE" | cog verify --file -
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
       - run: mise run check
         env:
           # Lets zizmor run its online audits, such as known-vulnerable actions.
