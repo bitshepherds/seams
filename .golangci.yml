@@ -10,6 +10,10 @@ linters:
     # Dead code (already in standard; named so it stays on) and copied blocks.
     - unused
     - dupl
+    # Small, simple units, at their default limits.
+    - gocognit
+    - funlen
+    - nestif
   settings:
     dupl:
       # The smallest copied block it reports, in syntax-tree tokens. The
