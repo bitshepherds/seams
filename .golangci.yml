@@ -1,0 +1,25 @@
+# golangci-lint's one config. Each practice adds its linters here.
+version: "2"
+
+linters:
+  # standard: errcheck, govet, ineffassign, staticcheck and unused.
+  default: standard
+  enable:
+    # Security flaws.
+    - gosec
+    # Dead code (already in standard; named so it stays on) and copied blocks.
+    - unused
+    - dupl
+    # Small, simple units, at their default limits.
+    - gocognit
+    - funlen
+    - nestif
+  settings:
+    dupl:
+      # The smallest copied block it reports, in syntax-tree tokens. The
+      # default, 150, missed a copied 30-line function in a trial; 75 catches it.
+      threshold: 75
+
+formatters:
+  enable:
+    - gofmt
