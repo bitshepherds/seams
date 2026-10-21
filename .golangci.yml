@@ -1,0 +1,10 @@
+# golangci-lint's one config. Each practice adds its linters here.
+version: "2"
+
+linters:
+  # standard: errcheck, govet, ineffassign, staticcheck and unused.
+  default: standard
+
+formatters:
+  enable:
+    - gofmt
