@@ -4,6 +4,9 @@ version: "2"
 linters:
   # standard: errcheck, govet, ineffassign, staticcheck and unused.
   default: standard
+  enable:
+    # Security flaws.
+    - gosec
 
 formatters:
   enable:
