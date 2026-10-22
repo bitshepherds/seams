@@ -98,6 +98,8 @@ func TestEachCommandsJSONOutputMatchesItsPublishedSchema(t *testing.T) {
 		{"seam", []string{"show", "--json", "--registry", registryFile(t, quotesSeam), "event:backend/quote-accepted"}},
 		{"seam", []string{"add", "--json", "--registry", emptyRegistry(t), "http:backend/quotes", "--consumer", "web"}},
 		{"seam", []string{"update", "--json", "--registry", registryFile(t, quotesSeam), "event:backend/quote-accepted", "--audience", "public"}},
+		{"import", []string{"import", "catalog-info", "--json", "--registry", emptyRegistry(t), "--file", catalogFile(t, catalogYAML)}},
+		{"import", []string{"import", "catalog-info", "--json", "--registry", emptyRegistry(t), "--file", catalogFile(t, "kind: Location\n")}},
 		{"rejection", []string{"reject", "--json", "--registry", emptyRegistry(t), "http:backend/health", "--signal", "route", "--file", "main.go"}},
 	} {
 		_, out, _ := seams(tc.args...)

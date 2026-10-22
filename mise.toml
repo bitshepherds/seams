@@ -45,4 +45,6 @@ run = [
   "osv-scanner scan source --recursive --licenses=MIT,BSD-2-Clause,BSD-3-Clause,Apache-2.0,ISC .",
   "go test -coverprofile=cover.out ./...",
   "go-test-coverage --config .testcoverage.yml",
+  # This repo's own registry, checked by the seams it builds.
+  "go run ./cmd/seams validate",
 ]

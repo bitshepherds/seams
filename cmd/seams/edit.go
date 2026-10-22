@@ -28,7 +28,7 @@ func (n *names) Set(v string) error {
 // details are the flags that describe a seam, shared by add and update.
 type details struct {
 	audience, contract, owner, independent string
-	external, inRepo                       names
+	external, inRepo, tests                names
 }
 
 func (d *details) on(fs *flag.FlagSet) {
@@ -38,6 +38,7 @@ func (d *details) on(fs *flag.FlagSet) {
 	fs.StringVar(&d.independent, "deploys-independently", "", "true or false: whether the sides deploy separately")
 	fs.Var(&d.external, "external", "a party outside the system, such as a vendor (repeatable)")
 	fs.Var(&d.inRepo, "in-repo", "a party whose code is in this repo (repeatable)")
+	fs.Var(&d.tests, "test", "a contract test, as <provider|consumer>:<test>:<tier> (repeatable)")
 }
 
 // apply sets on the seam each detail given.
@@ -64,11 +65,31 @@ func (d *details) apply(s *registry.Seam) error {
 		}
 		s.DeploysIndependently = &v
 	}
+	for _, spec := range d.tests {
+		test, err := contractTest(spec)
+		if err != nil {
+			return err
+		}
+		s.TestWorld = append(s.TestWorld, test)
+	}
 	for _, p := range parties(s) {
 		p.External = p.External || slices.Contains(d.external, p.Name)
 		p.InRepo = p.InRepo || slices.Contains(d.inRepo, p.Name)
 	}
 	return nil
+}
+
+// contractTest reads <side>:<test>:<tier>, where the test may hold colons.
+func contractTest(spec string) (registry.ContractTest, error) {
+	first, last := strings.Index(spec, ":"), strings.LastIndex(spec, ":")
+	if first < 0 || first == last {
+		return registry.ContractTest{}, fmt.Errorf("--test is <provider|consumer>:<test>:<tier>, not %q", spec)
+	}
+	test := registry.ContractTest{Side: spec[:first], Test: spec[first+1 : last], Tier: spec[last+1:]}
+	if test.Side != "provider" && test.Side != "consumer" {
+		return registry.ContractTest{}, fmt.Errorf("--test's side is provider or consumer, not %q", test.Side)
+	}
+	return test, nil
 }
 
 // parties are pointers to the seam's provider, if it has one, and consumers.

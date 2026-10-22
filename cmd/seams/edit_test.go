@@ -81,6 +81,8 @@ func TestAddRefusesWhatCannotBeASeam(t *testing.T) {
 		{[]string{"http:backend/quotes", "--consumer", "web", "--audience", "everyone"}, "internal or public"},
 		{[]string{"http:backend/quotes", "--consumer", "web", "--owner", "team"}, "--owner needs a contract"},
 		{[]string{"http:backend/quotes", "--consumer", "web", "--deploys-independently", "often"}, "true or false"},
+		{[]string{"http:backend/quotes", "--consumer", "web", "--test", "consumer:web/quotes_test.go"}, "<provider|consumer>:<test>:<tier>"},
+		{[]string{"http:backend/quotes", "--consumer", "web", "--test", "both:web/quotes_test.go:gate"}, "provider or consumer"},
 	} {
 		code, _, errs := seams(append([]string{"add", "--registry", path}, tc.args...)...)
 		if code != 1 || !strings.Contains(errs, tc.want) {
@@ -105,6 +107,16 @@ func TestAddRegistersASeamWithNoSingleOwnerAndAnExternalProvider(t *testing.T) {
 	}
 	if s, _ := r.Find("http:stripe/payments"); !s.Provider.External || s.Audience != registry.Public {
 		t.Errorf("the vendor seam is %+v", s)
+	}
+}
+
+func TestAddAndUpdateRecordTheSeamsTestWorld(t *testing.T) {
+	path := emptyRegistry(t)
+	mustSeams(t, "add", "--registry", path, "http:backend/quotes", "--consumer", "web", "--test", "provider:backend/quotes_test.go:gate")
+	mustSeams(t, "update", "--registry", path, "http:backend/quotes", "--test", "consumer:pact:web/quotes:gate")
+	s, _ := mustLoad(t, path).Find("http:backend/quotes")
+	if len(s.TestWorld) != 2 || s.TestWorld[1].Test != "pact:web/quotes" || s.TestWorld[1].Side != "consumer" || s.TestWorld[0].Tier != "gate" {
+		t.Fatalf("test world %+v", s.TestWorld)
 	}
 }
 
