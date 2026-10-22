@@ -19,6 +19,13 @@ linters:
       # The smallest copied block it reports, in syntax-tree tokens. The
       # default, 150, missed a copied 30-line function in a trial; 75 catches it.
       threshold: 75
+  exclusions:
+    rules:
+      # Tests run seams and go as subprocesses on purpose: the scenarios drive
+      # the built binary from outside. Code outside tests is still checked.
+      - path: _test\.go$
+        linters: [gosec]
+        text: G204
 
 formatters:
   enable:

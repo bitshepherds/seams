@@ -26,10 +26,14 @@ archives:
 checksum:
   name_template: checksums.txt
 
+# An SBOM for each archive, written by Syft, attached to the release.
+sboms:
+  - artifacts: archive
+
 # The release notes: the Conventional Commit subjects since the last tag.
 changelog:
+  # In git's order, newest first. (sort: asc sorts by subject, alphabetically.)
   use: git
-  sort: asc
   groups:
     - title: Features
       regexp: '^feat(\(.+\))?!?:'

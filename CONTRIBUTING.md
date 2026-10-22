@@ -25,5 +25,8 @@ Tag a commit on `main` as `vX.Y.Z` and push the tag. The release workflow runs
 the gate, then GoReleaser builds `seams` for linux, darwin and windows, on
 amd64 and arm64, and publishes them with checksums and a changelog as a GitHub
 release. A tag with a suffix, such as `v0.1.0-rc.1`, is a pre-release.
+Each archive comes with an SPDX SBOM, written by Syft. Once the repo is public,
+each also gets a build provenance attestation, which `gh attestation verify`
+checks.
 
 Install a release with `mise use github:bitshepherds/sheepdog-seams@<version>`.
