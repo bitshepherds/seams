@@ -47,3 +47,7 @@ changelog:
 release:
   # A tag with a suffix, such as v0.1.0-rc.1, is published as a pre-release.
   prerelease: auto
+  # The JSON Schemas of the registry and each command's output: the CLI's
+  # public contract.
+  extra_files:
+    - glob: ./schemas/*.json

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/seam/v1",
+  "title": "seams show <id>, add and update --json",
+  "description": "One seam, as the registry has it.",
+  "type": "object",
+  "required": ["schema", "seam"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/seam/v1" },
+    "seam": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/seam" }
+  }
+}

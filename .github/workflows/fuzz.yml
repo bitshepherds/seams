@@ -1,0 +1,58 @@
+name: fuzz
+
+on:
+  # Weekly, on the policy's schedule; the gate runs the seed corpora.
+  schedule:
+    - cron: "41 3 * * 0"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Files an issue for a crash.
+      issues: write
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [FuzzParseID, FuzzLoadRegistry]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          cache: false
+      - run: go test -run '^$' -fuzz "^${TARGET}\$" -fuzztime 5m ./internal/registry
+        env:
+          TARGET: ${{ matrix.target }}
+      - name: File an issue with the crashing input
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET: ${{ matrix.target }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          {
+            echo "## Goal"
+            echo
+            echo "$TARGET no longer fails on the input the weekly fuzz run found ($RUN_URL)."
+            echo
+            echo "## Scope"
+            echo
+            echo "Fix the crash, and add the input to the seed corpus under internal/registry/testdata/fuzz/$TARGET."
+            echo
+            echo "## Acceptance"
+            echo
+            echo "- \`$TARGET\` (gate)"
+            echo
+            echo "## The input"
+            echo
+            echo '```'
+            cat internal/registry/testdata/fuzz/"$TARGET"/* 2>/dev/null || echo "(no input was saved)"
+            echo '```'
+          } > issue.md
+          gh issue create --title "fix: fuzzing found a crash in $TARGET" --body-file issue.md

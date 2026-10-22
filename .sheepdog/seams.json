@@ -1,0 +1,36 @@
+{
+  "schema": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1",
+  "seams": [
+    {
+      "id": "cli:seams/registry",
+      "provider": {
+        "name": "seams",
+        "inRepo": true
+      },
+      "consumers": [
+        {
+          "name": "sheepdog",
+          "external": true
+        }
+      ],
+      "audience": "public",
+      "contract": {
+        "location": "schemas/",
+        "owner": "bitshepherds"
+      },
+      "deploysIndependently": true,
+      "testWorld": [
+        {
+          "side": "provider",
+          "test": "cmd/seams TestEachCommandsJSONOutputMatchesItsPublishedSchema",
+          "tier": "gate"
+        },
+        {
+          "side": "provider",
+          "test": "schemas TestSchemasAreCompatibleWithTheLastRelease",
+          "tier": "gate"
+        }
+      ]
+    }
+  ]
+}
