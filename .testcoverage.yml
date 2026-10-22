@@ -2,6 +2,6 @@
 profile: cover.out
 
 threshold:
-  # A ratchet: when coverage rises, raise the floor with it, in the same change.
-  # Never lower it.
-  total: 80
+  # 100%, as docs/TEST-POLICY.md says: code that can't be unit tested is marked
+  # `// coverage-ignore`, with its reason.
+  total: 100
