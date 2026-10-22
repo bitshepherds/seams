@@ -93,6 +93,12 @@ func TestEachCommandsJSONOutputMatchesItsPublishedSchema(t *testing.T) {
 	}{
 		{"validate", []string{"validate", "--json", "--registry", registryFile(t, quotesSeam+","+ownerlessSeam)}},
 		{"validate", []string{"validate", "--json", "--registry", registryFile(t, malformedSeam)}},
+		{"list", []string{"list", "--json", "--registry", registryFile(t, quotesSeam+","+ownerlessSeam)}},
+		{"list", []string{"list", "--json", "--registry", emptyRegistry(t)}},
+		{"seam", []string{"show", "--json", "--registry", registryFile(t, quotesSeam), "event:backend/quote-accepted"}},
+		{"seam", []string{"add", "--json", "--registry", emptyRegistry(t), "http:backend/quotes", "--consumer", "web"}},
+		{"seam", []string{"update", "--json", "--registry", registryFile(t, quotesSeam), "event:backend/quote-accepted", "--audience", "public"}},
+		{"rejection", []string{"reject", "--json", "--registry", emptyRegistry(t), "http:backend/health", "--signal", "route", "--file", "main.go"}},
 	} {
 		_, out, _ := seams(tc.args...)
 		if err := schemas.Validate(tc.schema, []byte(out)); err != nil {

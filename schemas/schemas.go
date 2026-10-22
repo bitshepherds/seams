@@ -76,11 +76,32 @@ func compile(name string) (entry, error) {
 	if err := c.AddResource(head.ID, doc); err != nil { // coverage-ignore: tested schemas have an $id
 		return entry{}, err
 	}
+	// The other schemas too, which this one may refer to.
+	for _, other := range Names() {
+		if other != name {
+			if err := addResource(c, other); err != nil { // coverage-ignore: tested schemas load
+				return entry{}, err
+			}
+		}
+	}
 	sch, err := c.Compile(head.ID)
 	if err != nil { // coverage-ignore: tested schemas compile
 		return entry{}, err
 	}
 	return entry{id: head.ID, schema: sch}, nil
+}
+
+func addResource(c *jsonschema.Compiler, name string) error {
+	src, _ := Source(name) // a name from Names
+	var head struct {
+		ID string `json:"$id"`
+	}
+	_ = json.Unmarshal(src, &head)
+	doc, err := jsonschema.UnmarshalJSON(bytes.NewReader(src))
+	if err != nil { // coverage-ignore: tested schemas are JSON
+		return err
+	}
+	return c.AddResource(head.ID, doc)
 }
 
 // Validate checks a JSON document against the named schema.

@@ -28,6 +28,11 @@ type command struct {
 }
 
 var commands = map[string]command{
+	"add":      {"register a seam", add},
+	"list":     {"list the registered seams, one a line", list},
+	"reject":   {"remember a candidate that isn't a seam, so it isn't proposed again", reject},
+	"show":     {"show one seam", show},
+	"update":   {"change a registered seam", update},
 	"validate": {"check the registry, and report its findings", validate},
 }
 
@@ -36,6 +41,7 @@ type cli struct {
 	out, errs io.Writer
 	registry  string
 	json      bool
+	args      []string // the command's positional arguments
 }
 
 func run(args []string, out, errs io.Writer) int {
@@ -77,14 +83,22 @@ func (c *cli) flags(name string) *flag.FlagSet {
 	return fs
 }
 
-// parse reads a command's flags and its positional arguments, and says
-// whether to carry on; on false, the command returns 2.
+// parse reads a command's flags, before or after its positional arguments,
+// into c.args, and says whether to carry on; on false, the command returns 2.
 func (c *cli) parse(fs *flag.FlagSet, args []string, positional int) bool {
-	if err := fs.Parse(args); err != nil {
-		return false
+	c.args = nil
+	for {
+		if err := fs.Parse(args); err != nil {
+			return false
+		}
+		if fs.NArg() == 0 {
+			break
+		}
+		c.args = append(c.args, fs.Arg(0))
+		args = fs.Args()[1:]
 	}
-	if fs.NArg() != positional {
-		_, _ = fmt.Fprintf(c.errs, "%s: want %d argument(s), got %q\n", fs.Name(), positional, strings.Join(fs.Args(), " "))
+	if len(c.args) != positional {
+		_, _ = fmt.Fprintf(c.errs, "%s: want %d argument(s), got %q\n", fs.Name(), positional, strings.Join(c.args, " "))
 		return false
 	}
 	return true

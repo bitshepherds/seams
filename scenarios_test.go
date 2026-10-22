@@ -39,14 +39,37 @@ func TestScenarios(t *testing.T) {
 			_ = os.RemoveAll(dir)
 		}
 	}))
+	givenSteps(suite)
+	whenSteps(suite, bin)
+	thenSteps(suite, bin)
+	suite.Run()
+}
+
+func givenSteps(suite *gobdd.Suite) {
 	suite.AddStep(`seams is installed`, func(gobdd.StepTest, gobdd.Context) {})
 	suite.AddStep(`an empty registry`, func(gobdd.StepTest, gobdd.Context) {})
 	suite.AddStep(`a registry with a seam whose id is (\S+)`, func(t gobdd.StepTest, ctx gobdd.Context, id string) {
 		writeRegistry(t, ctx, `{"id": "`+id+`", "provider": {"name": "backend"}, "consumers": [{"name": "billing"}], "audience": "internal"}`)
 	})
+	suite.AddStep(`a registry with the seam (\S+)`, func(t gobdd.StepTest, ctx gobdd.Context, id string) {
+		provider := strings.SplitN(strings.SplitN(id, ":", 2)[1], "/", 2)[0]
+		writeRegistry(t, ctx, `{"id": "`+id+`", "provider": {"name": "`+provider+`"}, "consumers": [{"name": "checkout"}], "audience": "internal"}`)
+	})
+}
+
+func whenSteps(suite *gobdd.Suite, bin string) {
+	suite.AddStep(`a developer adds the seam (\S+), provided by (\S+) and consumed by (\S+)`, func(t gobdd.StepTest, ctx gobdd.Context, id, provider, consumer string) {
+		runSeams(t, ctx, bin, "add", id, "--provider", provider, "--consumer", consumer)
+		if code, _ := ctx.GetInt("code"); code != 0 {
+			t.Fatalf("seams add failed: %s", get(t, ctx, "stderr"))
+		}
+	})
 	suite.AddStep(`(?:a developer|a tool) runs seams (.+)`, func(t gobdd.StepTest, ctx gobdd.Context, args string) {
 		runSeams(t, ctx, bin, strings.Fields(args)...)
 	})
+}
+
+func thenSteps(suite *gobdd.Suite, bin string) {
 	suite.AddStep(`seams prints its version`, func(t gobdd.StepTest, ctx gobdd.Context) {
 		if out := get(t, ctx, "stdout"); out != "seams "+scenarioVersion+"\n" {
 			t.Errorf("seams printed %q", out)
@@ -60,7 +83,17 @@ func TestScenarios(t *testing.T) {
 			t.Errorf("seams said %q", out)
 		}
 	})
-	suite.Run()
+	suite.AddStep(`seams list shows (\S+), with (\S+) as its provider and (\S+) as its consumer`, func(t gobdd.StepTest, ctx gobdd.Context, id, provider, consumer string) {
+		runSeams(t, ctx, bin, "list")
+		if out := get(t, ctx, "stdout"); !strings.Contains(out, id+"  "+provider+" → "+consumer) {
+			t.Errorf("seams list printed %q", out)
+		}
+	})
+	suite.AddStep(`it gets the seam as JSON matching the published schema`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		if err := schemas.Validate("seam", []byte(get(t, ctx, "stdout"))); err != nil {
+			t.Errorf("%v\n%s", err, get(t, ctx, "stdout"))
+		}
+	})
 }
 
 func get(t gobdd.StepTest, ctx gobdd.Context, key string) string {
