@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -55,6 +56,13 @@ func givenSteps(suite *gobdd.Suite) {
 		provider := strings.SplitN(strings.SplitN(id, ":", 2)[1], "/", 2)[0]
 		writeRegistry(t, ctx, `{"id": "`+id+`", "provider": {"name": "`+provider+`"}, "consumers": [{"name": "checkout"}], "audience": "internal"}`)
 	})
+	suite.AddStep(`the fixture system`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		copyFixture(t, ctx, "system")
+	})
+	suite.AddStep(`a registry that lacks a seam the code has, and lists one the code no longer has`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		copyFixture(t, ctx, "signals/messaging") // its code has event:checkout/orders
+		writeRegistry(t, ctx, `{"id": "http:legacy/api", "provider": {"name": "legacy"}, "consumers": [{"name": "checkout"}], "audience": "internal"}`)
+	})
 }
 
 func whenSteps(suite *gobdd.Suite, bin string) {
@@ -89,6 +97,20 @@ func thenSteps(suite *gobdd.Suite, bin string) {
 			t.Errorf("seams list printed %q", out)
 		}
 	})
+	suite.AddStep(`each candidate is listed with its kind, provider, consumers, evidence by file and line, and confidence`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		checkCandidates(t, get(t, ctx, "stdout"))
+	})
+	suite.AddStep(`both are named, each with why`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		out := get(t, ctx, "stdout")
+		if code, _ := ctx.GetInt("code"); code != 1 {
+			t.Errorf("seams detect --drift exited %d", code)
+		}
+		for _, want := range []string{"missing: event:checkout/orders  the code has it", "stale: http:legacy/api  registered, but nothing"} {
+			if !strings.Contains(out, want) {
+				t.Errorf("seams printed %q, without %q", out, want)
+			}
+		}
+	})
 	suite.AddStep(`it gets the seam as JSON matching the published schema`, func(t gobdd.StepTest, ctx gobdd.Context) {
 		if err := schemas.Validate("seam", []byte(get(t, ctx, "stdout"))); err != nil {
 			t.Errorf("%v\n%s", err, get(t, ctx, "stdout"))
@@ -102,6 +124,43 @@ func get(t gobdd.StepTest, ctx gobdd.Context, key string) string {
 		t.Fatal(err)
 	}
 	return v
+}
+
+var (
+	candidateLine = regexp.MustCompile(`^(?:http|grpc|graphql|event|queue|file|config|table|lib|cli):\S+/\S+  \S.* → \S.*  \((?:low|medium|high), (?:internal|public)\)$`)
+	evidenceLine  = regexp.MustCompile(`^    (?:provides|consumes|owns|supports) +\S+:\d+  \S+  `)
+)
+
+// checkCandidates checks seams detect's listing: each candidate on a line
+// of its own, with its id, provider, consumers and confidence, followed by
+// its evidence, each by file and line.
+func checkCandidates(t gobdd.StepTest, out string) {
+	candidates, evidence := 0, 0
+	for _, l := range strings.Split(strings.TrimSuffix(out, "\n"), "\n") {
+		switch {
+		case candidateLine.MatchString(l):
+			if candidates > 0 && evidence == 0 {
+				t.Errorf("a candidate before %q has no evidence", l)
+			}
+			candidates, evidence = candidates+1, 0
+		case evidenceLine.MatchString(l):
+			evidence++
+		case strings.HasPrefix(l, "    note: "), strings.HasSuffix(l, " component(s)"):
+		default:
+			t.Errorf("seams detect printed the line %q", l)
+		}
+	}
+	if candidates < 8 || evidence == 0 {
+		t.Errorf("seams detect listed %d candidate(s):\n%s", candidates, out)
+	}
+}
+
+// copyFixture copies a fixture repo from testdata/ into the scenario's
+// directory.
+func copyFixture(t gobdd.StepTest, ctx gobdd.Context, name string) {
+	if err := os.CopyFS(get(t, ctx, "dir"), os.DirFS(filepath.Join("testdata", name))); err != nil {
+		t.Fatal(err)
+	}
 }
 
 // writeRegistry writes the scenario's registry, at the default path, with

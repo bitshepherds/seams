@@ -1,0 +1,7 @@
+name: api
+on: pull_request
+jobs:
+  breaking:
+    runs-on: ubuntu-latest
+    steps:
+      - run: oasdiff breaking origin/main:pricing/openapi.yaml pricing/openapi.yaml

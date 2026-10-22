@@ -1,0 +1,6 @@
+{
+  "name": "fulfilment",
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.600.0"
+  }
+}

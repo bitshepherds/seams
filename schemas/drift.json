@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/drift/v1",
+  "title": "seams detect --drift --json",
+  "description": "How the registry differs from the code: the candidates it lacks, and the registered seams the code no longer has evidence for. Any drift makes the command exit 1.",
+  "type": "object",
+  "required": ["schema", "drifted", "missing", "stale"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/drift/v1" },
+    "drifted": { "type": "boolean" },
+    "missing": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["candidate", "why"],
+        "additionalProperties": false,
+        "properties": {
+          "candidate": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/detect/v1#/$defs/candidate" },
+          "why": { "type": "string" }
+        }
+      }
+    },
+    "stale": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["seam", "why"],
+        "additionalProperties": false,
+        "properties": {
+          "seam": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/id" },
+          "why": { "type": "string" }
+        }
+      }
+    }
+  }
+}

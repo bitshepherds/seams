@@ -1,0 +1,6 @@
+{
+  "name": "@acme/checkout",
+  "dependencies": {
+    "@acme/money": "workspace:*"
+  }
+}

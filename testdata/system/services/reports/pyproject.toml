@@ -1,0 +1,6 @@
+[project]
+name = "reports"
+dependencies = [
+  "psycopg>=3.2",
+  "grpcio>=1.64",
+]

@@ -1,0 +1,8 @@
+{
+  "name": "shop",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}
