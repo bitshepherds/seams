@@ -1,0 +1,45 @@
+# GoReleaser builds and publishes each release, from a tag vX.Y.Z.
+version: 2
+
+project_name: seams
+
+builds:
+  - id: seams
+    main: ./cmd/seams
+    binary: seams
+    env:
+      # Static binaries, which cross-compile with no C toolchain.
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags: ["-s -w -X main.version={{ .Version }}"]
+
+archives:
+  # Named <name>_<version>_<os>_<arch>, which mise's GitHub backend matches.
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+checksum:
+  name_template: checksums.txt
+
+# The release notes: the Conventional Commit subjects since the last tag.
+changelog:
+  use: git
+  sort: asc
+  groups:
+    - title: Features
+      regexp: '^feat(\(.+\))?!?:'
+      order: 0
+    - title: Fixes
+      regexp: '^fix(\(.+\))?!?:'
+      order: 1
+    - title: Other changes
+      order: 2
+
+release:
+  # A tag with a suffix, such as v0.1.0-rc.1, is published as a pre-release.
+  prerelease: auto

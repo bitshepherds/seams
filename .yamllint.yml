@@ -3,6 +3,9 @@
 # version comment that follows a pinned SHA.
 extends: default
 
+# What git ignores, such as GoReleaser's dist/, isn't ours to lint.
+ignore-from-file: .gitignore
+
 rules:
   document-start: disable
   truthy:
