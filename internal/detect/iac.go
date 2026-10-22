@@ -60,7 +60,7 @@ var (
 	tfEnv     = regexp.MustCompile(`^\s*"?([A-Z][A-Z0-9_]*)"?\s*=\s*(.+)$`)
 	tfECSEnv  = regexp.MustCompile(`name\s*=\s*"([A-Z][A-Z0-9_]*)"\s*,?\s*value\s*=\s*([^,}]+)`)
 	tfURL     = regexp.MustCompile(`"(https?://[^"]+)"`)
-	tfPath    = regexp.MustCompile(`"(?:\$\{path\.\w+\}/)?([^"$]*/[^"]*)"`)
+	tfPath    = regexp.MustCompile(`^\s*(?:filename|source_dir|source_file|source_path|working_dir)\s*=\s*"(?:\$\{path\.\w+\}/)?([^"$]+)"`)
 	tfStrings = regexp.MustCompile(`"(?:[^"\\]|\\.)*"|#.*|//.*`)
 )
 
@@ -162,11 +162,11 @@ func (s *scan) iacSignals() {
 }
 
 // computeComponent is the component a Lambda function, container or
-// deployment runs: the one a path in it points into, or the one its label
-// or name names, or empty.
+// deployment runs: the one its code's path, such as filename, points into,
+// or the one its label or name names, or empty.
 func (s *scan) computeComponent(b tfBlock) string {
 	for _, l := range b.body[1:] {
-		for _, m := range tfPath.FindAllStringSubmatch(l, -1) {
+		if m := tfPath.FindStringSubmatch(l); m != nil {
 			if c, ok := s.componentHolding(path.Clean(path.Join(path.Dir(b.file), m[1]))); ok {
 				return c
 			}

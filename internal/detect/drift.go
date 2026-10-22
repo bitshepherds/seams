@@ -37,7 +37,7 @@ var detectable = []string{"http", "grpc", "graphql", "event", "queue", "table", 
 func FindDrift(cands []Candidate, r *registry.Registry) Drift {
 	d := Drift{Missing: []Missing{}, Stale: []Stale{}}
 	for _, c := range cands {
-		if !slices.ContainsFunc(r.Seams, func(s registry.Seam) bool { return matches(c, s) }) {
+		if !slices.ContainsFunc(r.Seams, func(s registry.Seam) bool { return matches(c, s, r.Seams) }) {
 			e := c.Evidence[slices.IndexFunc(c.Evidence, func(e Evidence) bool { return e.Role != supports })]
 			d.Missing = append(d.Missing, Missing{c, fmt.Sprintf(
 				"the code has it, by %s at %s:%d, but the registry doesn't", e.Signal, e.File, e.Line)})
@@ -45,7 +45,7 @@ func FindDrift(cands []Candidate, r *registry.Registry) Drift {
 	}
 	for _, s := range r.Seams {
 		id, _ := registry.ParseID(s.ID) // a loaded registry's ids parse
-		if slices.Contains(detectable, id.Kind) && !slices.ContainsFunc(cands, func(c Candidate) bool { return matches(c, s) }) {
+		if slices.Contains(detectable, id.Kind) && !slices.ContainsFunc(cands, func(c Candidate) bool { return matches(c, s, r.Seams) }) {
 			d.Stale = append(d.Stale, Stale{s.ID, "registered, but nothing in the code is evidence of it any more"})
 		}
 	}
@@ -56,7 +56,7 @@ func FindDrift(cands []Candidate, r *registry.Registry) Drift {
 // the seam had; or, where the evidence couldn't name a part of it, by the
 // rest. A provider's unnamed API matches its one registered API of the
 // kind, and a seam of unknown provider matches by kind and name.
-func matches(c Candidate, s registry.Seam) bool {
+func matches(c Candidate, s registry.Seam, seams []registry.Seam) bool {
 	if c.ID == s.ID || slices.Contains(s.Was, c.ID) {
 		return true
 	}
@@ -66,7 +66,10 @@ func matches(c Candidate, s registry.Seam) bool {
 	case cid.Kind != sid.Kind:
 		return false
 	case cid.Name == generic:
-		return cid.Provider == sid.Provider
+		return cid.Provider == sid.Provider && len(slices.DeleteFunc(slices.Clone(seams), func(o registry.Seam) bool {
+			oid, _ := registry.ParseID(o.ID)
+			return oid.Kind != sid.Kind || oid.Provider != sid.Provider
+		})) == 1
 	case cid.Provider == registry.NoProvider:
 		return cid.Name == sid.Name
 	}

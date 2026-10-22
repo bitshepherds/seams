@@ -84,3 +84,32 @@ func TestEverySignalIsPublishedInTheSchema(t *testing.T) {
 		t.Errorf("the schema publishes the signals %v; the code has %v", got, Signals)
 	}
 }
+
+func TestAServiceTwoComponentsServeKeepsOneCandidatePerId(t *testing.T) {
+	grpcMod := "module example.com/%s\n\nrequire google.golang.org/grpc v1.64.0\n"
+	cands := detectFiles(t, map[string]string{
+		"pricing/go.mod":        strings.ReplaceAll(grpcMod, "%s", "pricing"),
+		"pricing/pricing.proto": "service PricingService {}\n",
+		"pricing/main.go":       "pb.RegisterPricingServiceServer(s, &pricer{})\n",
+		"fake/go.mod":           strings.ReplaceAll(grpcMod, "%s", "fake"),
+		"fake/main.go":          "pb.RegisterPricingServiceServer(s, &fake{})\n",
+		"checkout/go.mod":       strings.ReplaceAll(grpcMod, "%s", "checkout"),
+		"checkout/main.go":      "c := pb.NewPricingServiceClient(conn)\n",
+		"reports/package.json":  `{"name": "reports"}`,
+		"reports/stats.proto":   "service Stats {}\n",
+		"admin/package.json":    `{"name": "admin"}`,
+		"admin/stats.proto":     "service Stats {}\n",
+		"stats/go.mod":          strings.ReplaceAll(grpcMod, "%s", "stats"),
+		"stats/main.go":         "pb.RegisterStatsServer(s, &stats{})\n",
+		"stats2/go.mod":         strings.ReplaceAll(grpcMod, "%s", "stats2"),
+		"stats2/main.go":        "pb.RegisterStatsServer(s, &stats{})\n",
+	})
+	// pricing holds the proto, so it's pricing's service checkout calls.
+	mustFind(t, cands, "grpc:pricing/pricing-service", "pricing", "checkout")
+	mustFind(t, cands, "grpc:fake/pricing-service", "fake")
+	// Two components serve Stats, and two hold its proto: nothing says whose it is.
+	mustFind(t, cands, "grpc:_/stats", "")
+	if !slices.IsSortedFunc(cands, func(a, b Candidate) int { return strings.Compare(a.ID, b.ID) }) {
+		t.Errorf("candidates out of order: %v", ids(cands))
+	}
+}

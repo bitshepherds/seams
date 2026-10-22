@@ -22,13 +22,14 @@ func (s *scan) candidates() []Candidate {
 		groups[k] = append(groups[k], f)
 	}
 	joinGeneric(groups)
-	shared := joinUnknown(groups)
+	unowned := joinUnknown(groups)
 	out := []Candidate{}
 	for _, k := range sortedGroupKeys(groups) {
-		if c, ok := s.candidate(k, groups[k], shared[k]); ok {
+		if c, ok := s.candidate(k, groups[k], unowned[k]); ok {
 			out = append(out, c)
 		}
 	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 	return out
 }
 
@@ -64,11 +65,18 @@ func joinGeneric(groups map[key][]fact) {
 	}
 }
 
+// Why a seam has no provider, though its evidence may name an owner.
+const (
+	sharedSeam  = "shared"  // several parties provide it, so none does alone
+	unknownSeam = "unknown" // several might, and the evidence doesn't say which
+)
+
 // joinUnknown merges evidence that doesn't name a seam's provider into the
-// seam of that kind and name whose provider is known, when there's one. A
-// topic or queue that several parties provide has no single owner, so their
-// evidence is merged into one seam with none; it returns those seams.
-func joinUnknown(groups map[key][]fact) map[key]bool {
+// seam of that kind and name whose provider is known: the one there is, or
+// the one that is its owner. A topic or queue that several parties provide
+// has no single owner, so their evidence is merged into one seam with none.
+// It returns the seams left with no provider, and why.
+func joinUnknown(groups map[key][]fact) map[key]string {
 	byName := map[key][]key{} // a kind and name → the seams of it with a known provider
 	for _, k := range sortedGroupKeys(groups) {
 		if k.provider != "" && k.name != generic {
@@ -76,32 +84,58 @@ func joinUnknown(groups map[key][]fact) map[key]bool {
 			byName[n] = append(byName[n], k)
 		}
 	}
-	shared := map[key]bool{}
+	unowned := map[key]string{}
 	for _, n := range sortedGroupKeys(byName) {
 		known := byName[n]
+		facts, ok := groups[n]
+		owner := key{n.kind, ownerOf(facts), n.name}
 		switch {
-		case len(known) == 1:
-			if facts, ok := groups[n]; ok {
-				groups[known[0]] = append(groups[known[0]], facts...)
-				delete(groups, n)
-			}
 		case n.kind == "event" || n.kind == "queue":
+			if len(known) == 1 {
+				break
+			}
 			for _, o := range known {
 				groups[n] = append(groups[n], groups[o]...)
 				delete(groups, o)
 			}
-			shared[n] = true
+			unowned[n] = sharedSeam
+			continue
+		case !ok:
+			continue
+		case slices.Contains(known, owner):
+			known = []key{owner}
+		case len(known) > 1:
+			unowned[n] = unknownSeam
+			continue
+		}
+		if ok {
+			groups[known[0]] = append(groups[known[0]], facts...)
+			delete(groups, n)
 		}
 	}
-	return shared
+	return unowned
+}
+
+// ownerOf is the facts' one owner, or empty.
+func ownerOf(facts []fact) string {
+	owner := ""
+	for _, f := range facts {
+		if f.owner != "" && owner != "" && f.owner != owner {
+			return ""
+		}
+		if f.owner != "" {
+			owner = f.owner
+		}
+	}
+	return owner
 }
 
 // candidate reads one seam from its facts, or says it isn't one: a party
-// using its own API, or a table nobody else reads. A shared seam is
-// provided by several parties, so by none alone.
-func (s *scan) candidate(k key, facts []fact, shared bool) (Candidate, bool) {
+// using its own API, or a table nobody else reads. An unowned seam has no
+// provider, and says why.
+func (s *scan) candidate(k key, facts []fact, unowned string) (Candidate, bool) {
 	provider := s.providerOf(k, facts)
-	if shared {
+	if unowned != "" {
 		provider = nil
 	}
 	c := Candidate{Kind: k.kind, Provider: provider, Consumers: []registry.Party{}, Audience: registry.Internal, Notes: []string{}}
@@ -142,7 +176,7 @@ func (s *scan) candidate(k key, facts []fact, shared bool) (Candidate, bool) {
 	c.Evidence = dedupe(c.Evidence)
 	c.Confidence = confidences[confidence(best, len(signals), provider)]
 	c.Notes = append(c.Notes, s.spread(c)...)
-	if shared {
+	if unowned == sharedSeam {
 		c.Notes = append(c.Notes, "provided by more than one party, so it has no single owner: "+strings.Join(providedBy(facts), ", "))
 	} else if provider == nil && len(c.Notes) == 0 {
 		c.Notes = append(c.Notes, "the evidence doesn't say who provides it")

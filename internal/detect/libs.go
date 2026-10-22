@@ -83,11 +83,14 @@ var notServices = map[string]bool{
 	"elasticsearch": true, "s3": true, "aws": true, "cdn": true, "public": true, "site": true, "app": true,
 	"base": true, "frontend": true, "callback": true, "redirect": true, "webhook": true, "cors": true,
 	"origin": true, "localstack": true, "aws-endpoint": true, "queue": true, "topic": true,
+	// API_URL, in a front end, names its back end, but not which component that is.
+	"api": true, "backend": true, "server": true,
 }
 
 // toolingSchemas are hosts whose schemas describe tools' own config files,
 // such as an editor's, rather than a seam of the system's.
 var toolingSchemas = []string{
 	"json-schema.org", "schemastore.org", "json.schemastore.org", "docs.renovatebot.com", "biomejs.dev",
-	"unpkg.com", "raw.githubusercontent.com/SchemaStore",
+	"unpkg.com", "raw.githubusercontent.com/SchemaStore", "turbo.build", "turborepo.com", "openapi.vercel.sh",
+	"vercel.com", "ui.shadcn.com", "deno.land", "jsr.io", "nx.dev", "railway.com", "fly.io",
 }

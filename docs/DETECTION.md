@@ -63,9 +63,9 @@ or `supports`, which makes a seam likelier without naming it.
 | `http-server` | An HTTP or GraphQL server framework in a manifest, or a standard library server | provides |
 | `http-route` | A route the code serves | provides |
 | `http-client` | A call to a service by its host name, such as `http://pricing:8080` | consumes |
-| `route-call` | A call to a path that exactly one other component serves | consumes |
-| `grpc` | A gRPC server's registration, or a stub | provides, consumes |
-| `org-client` | A dependency on the org's own `*-client` or `*-sdk` package | consumes |
+| `route-call` | A call to a path that exactly one other component serves. A route starting with a parameter belongs to a sub-router mounted elsewhere, so it's never matched | consumes |
+| `grpc` | A gRPC server's registration, or a stub, other than gRPC's own health and reflection services | provides, consumes |
+| `org-client` | A dependency on the org's own `*-client` or `*-sdk` package: one in the npm scope, or under the Go module owner, the component shares. Python has no org to share, so it has none | consumes |
 | `workspace` | A dependency on another of the repo's packages | consumes |
 | `vendor` | A vendor's SDK in a manifest or imported, or a call to its API's host | consumes |
 | `broker` | A message broker's client in a manifest | supports |
@@ -98,7 +98,9 @@ SAM or Serverless sets the name in the component's environment, detection
 follows it there instead, to the queue, topic, other component or URL it's
 set to. Two components reading different names set to one queue then share
 one seam. Names of databases, brokers, telemetry and the app itself, such as
-`DATABASE_URL`, aren't seams.
+`DATABASE_URL`, aren't seams. A front-end framework's prefix, such as
+`NEXT_PUBLIC_` or `VITE_`, is dropped first. `API_URL` names a front end's
+back end but not which component that is, so it isn't read either.
 
 ### Third parties
 

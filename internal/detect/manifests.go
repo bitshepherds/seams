@@ -90,7 +90,7 @@ func (s *scan) vendorDep(comp string, d dep) bool {
 // module's owner the component shares; Python has none to share.
 func (s *scan) orgClient(c Component, d dep) {
 	m := clientPackage.FindStringSubmatch(lastElement(d.name))
-	if m == nil || org(d.name) != org(s.moduleName(c)) || notServices[slug(m[1])] {
+	if o := org(d.name); m == nil || o == "" || o != org(s.moduleName(c)) || notServices[slug(m[1])] {
 		return
 	}
 	s.consume("http", slug(m[1]), generic, c.Name, medium, s.evidence(sigOrgClient, consumes, c.Name, d.file, d.line))

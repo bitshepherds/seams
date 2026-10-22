@@ -219,19 +219,20 @@ func TestDriftMatchesASeamByIdFormerIdOrWhatTheEvidenceCouldName(t *testing.T) {
 	seam := func(id string, was ...string) registry.Seam { return registry.Seam{ID: id, Was: was} }
 	for _, tc := range []struct {
 		candidate string
-		seam      registry.Seam
+		seams     []registry.Seam
 		want      bool
 	}{
-		{"event:checkout/orders", seam("event:checkout/orders"), true},
-		{"event:checkout/orders", seam("event:checkout/placed", "event:checkout/orders"), true},
-		{"http:pricing/api", seam("http:pricing/quotes"), true},
-		{"http:pricing/api", seam("http:billing/quotes"), false},
-		{"grpc:_/pricing", seam("grpc:pricing/pricing"), true},
-		{"event:checkout/orders", seam("queue:checkout/orders"), false},
-		{"event:checkout/orders", seam("event:checkout/refunds"), false},
+		{"event:checkout/orders", []registry.Seam{seam("event:checkout/orders")}, true},
+		{"event:checkout/orders", []registry.Seam{seam("event:checkout/placed", "event:checkout/orders")}, true},
+		{"http:pricing/api", []registry.Seam{seam("http:pricing/quotes")}, true},
+		{"http:pricing/api", []registry.Seam{seam("http:pricing/quotes"), seam("http:pricing/history")}, false},
+		{"http:pricing/api", []registry.Seam{seam("http:billing/quotes")}, false},
+		{"grpc:_/pricing", []registry.Seam{seam("grpc:pricing/pricing")}, true},
+		{"event:checkout/orders", []registry.Seam{seam("queue:checkout/orders")}, false},
+		{"event:checkout/orders", []registry.Seam{seam("event:checkout/refunds")}, false},
 	} {
-		if got := matches(Candidate{ID: tc.candidate}, tc.seam); got != tc.want {
-			t.Errorf("matches(%s, %s) = %v", tc.candidate, tc.seam.ID, got)
+		if got := matches(Candidate{ID: tc.candidate}, tc.seams[0], tc.seams); got != tc.want {
+			t.Errorf("matches(%s, %s of %d) = %v", tc.candidate, tc.seams[0].ID, len(tc.seams), got)
 		}
 	}
 }

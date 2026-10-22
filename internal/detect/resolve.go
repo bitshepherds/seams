@@ -14,9 +14,16 @@ var envSuffixes = []struct{ suffix, kind string }{
 	{"_SERVICE_URL", "http"}, {"_API_URL", "http"}, {"_BASE_URL", "http"}, {"_URL", "http"},
 }
 
+// envPrefixes are frameworks' prefixes for env names a browser bundle may
+// read, which name no service.
+var envPrefixes = []string{"NEXT_PUBLIC_", "NUXT_PUBLIC_", "EXPO_PUBLIC_", "REACT_APP_", "VITE_", "PUBLIC_"}
+
 // envKind is the kind of seam an env name names, and its stem, such as
 // http and pricing for PRICING_URL; the kind is empty for none.
 func envKind(name string) (kind, stem string) {
+	for _, prefix := range envPrefixes {
+		name = strings.TrimPrefix(name, prefix)
+	}
 	for _, e := range envSuffixes {
 		if strings.HasSuffix(name, e.suffix) {
 			return e.kind, slug(strings.ReplaceAll(strings.TrimSuffix(name, e.suffix), "_", "-"))
@@ -151,7 +158,10 @@ func (s *scan) resolveCall(c pathCall) {
 	}
 	servers := map[string]bool{}
 	for _, r := range s.routes {
-		if r.comp != c.comp && pathsMatch(strings.Split(strings.TrimPrefix(r.path, "/"), "/"), segs) {
+		route := strings.Split(strings.TrimPrefix(r.path, "/"), "/")
+		// A route starting with a parameter is a sub-router's, mounted at a
+		// path read elsewhere, so it can't be matched.
+		if r.comp != c.comp && !param(route[0]) && pathsMatch(route, segs) {
 			servers[r.comp] = true
 		}
 	}

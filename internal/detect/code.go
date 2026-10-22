@@ -25,7 +25,7 @@ var sourceExts = map[string]bool{
 var (
 	routePatterns = []*regexp.Regexp{
 		regexp.MustCompile(`\.(?:HandleFunc|Handle|GET|POST|PUT|PATCH|DELETE|Get|Post|Put|Patch|Delete|Route)\(\s*"(?:[A-Z]+ )?(/[^"]*)"`),
-		regexp.MustCompile("\\b(?:app|router|server|fastify|api|routes)\\.(?:get|post|put|patch|delete|all|route)\\(\\s*[\"'`](/[^\"'`]*)"),
+		regexp.MustCompile("\\b(?:app|router|server|fastify|routes)\\.(?:get|post|put|patch|delete|all|route)\\(\\s*[\"'`](/[^\"'`]*)"),
 		regexp.MustCompile(`@(?:Controller|Get|Post|Put|Patch|Delete)\(\s*["'](/?[^"']*)["']`),
 		regexp.MustCompile(`@\w+\.(?:get|post|put|patch|delete|route|api_route)\(\s*["'](/[^"']*)`),
 	}
@@ -42,12 +42,12 @@ var (
 	grpcServe = regexp.MustCompile(`\bRegister(\w+)Server\(|\badd_(\w+)Servicer_to_server\(|\.addService\(\s*(?:\w+\.)*(\w+)\.service\b`)
 	grpcStub  = regexp.MustCompile(`\bNew(\w+)Client\(|\b(\w+)Stub\(|\bnew\s+(?:\w+\.)+(\w+)\([^)]*credentials`)
 
-	publishCall   = regexp.MustCompile("(?i)\\.(?:publish|produce|send)\\(\\s*[\"'`]([\\w.:/-]+)[\"'`]")
+	publishCall   = regexp.MustCompile("(?i)(?:\\.(?:publish|produce)|\\bproducer\\w*\\.send)\\(\\s*[\"'`]([\\w.:/-]+)[\"'`]")
 	subscribeCall = regexp.MustCompile("(?i)\\.(?:subscribe|queuesubscribe|chansubscribe|consumepartition)\\(\\s*\\[?\\s*[\"'`]([\\w.:/-]+)[\"'`]")
 	topicLiteral  = regexp.MustCompile("\\b[Tt]opics?\\s*[:=]\\s*\\[?\\s*[\"'`]([\\w.-]+)[\"'`]")
 	queueSend     = regexp.MustCompile(`\bsendToQueue\(\s*["']([\w.-]+)|\bbasic_publish\([^)]*routing_key\s*=\s*["']([\w.-]+)`)
 	queueReceive  = regexp.MustCompile(`\bbasic_consume\([^)]*queue\s*=\s*["']([\w.-]+)|(?i)\.consume\(\s*["']([\w.-]+)`)
-	sendWords     = regexp.MustCompile(`(?i)send|publish|produc|writer|putevents|put_events|putrecord`)
+	sendWords     = regexp.MustCompile(`(?i)send|publish|producer|produce\b|produce\(|writer|putevents|put_events|putrecord`)
 	receiveWords  = regexp.MustCompile(`(?i)receive|subscri|consum|reader|poll`)
 
 	tableRefPattern = regexp.MustCompile(`(?i)\b(?:from|join|into|update)\s+["` + "`" + `]?([a-z_][a-z0-9_]*)`)
@@ -229,11 +229,15 @@ func direction(lines []string, i, window int) int {
 	return unknownDirection
 }
 
+// grpcInfra are services gRPC's own libraries give every server, not seams
+// of the system's.
+var grpcInfra = map[string]bool{"health": true, "reflection": true, "server-reflection": true, "channelz": true}
+
 func (s *scan) grpcLine(cf codeFile, i int, line string) {
-	if m := grpcServe.FindStringSubmatch(line); m != nil {
+	if m := grpcServe.FindStringSubmatch(line); m != nil && !grpcInfra[kebab(strings.Join(m[1:], ""))] {
 		s.provide("grpc", cf.comp, kebab(strings.Join(m[1:], "")), medium, s.evidence(sigGRPC, provides, cf.comp, cf.path, i+1))
 	}
-	if m := grpcStub.FindStringSubmatch(line); m != nil {
+	if m := grpcStub.FindStringSubmatch(line); m != nil && !grpcInfra[kebab(strings.Join(m[1:], ""))] {
 		s.consume("grpc", "", kebab(strings.Join(m[1:], "")), cf.comp, medium, s.evidence(sigGRPC, consumes, cf.comp, cf.path, i+1))
 	}
 }

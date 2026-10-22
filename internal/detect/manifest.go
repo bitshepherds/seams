@@ -16,7 +16,7 @@ type dep struct {
 }
 
 var (
-	goModule      = regexp.MustCompile(`^module\s+(\S+)`)
+	goModule      = regexp.MustCompile(`(?m)^module\s+(\S+)`)
 	goRequire     = regexp.MustCompile(`^\s*(?:require\s+)?([\w.~-]+\.[\w.~/-]+)\s+v\S+`)
 	majorVersion  = regexp.MustCompile(`/v\d+$`)
 	tomlName      = regexp.MustCompile(`^name\s*=\s*"([^"]+)"`)

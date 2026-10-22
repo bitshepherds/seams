@@ -57,3 +57,26 @@ resource "aws_lambda_event_source_mapping" "jobs" {
 		t.Errorf("signals %v", signals(jobs))
 	}
 }
+
+func TestAComputesCodeIsFoundByItsPathNotItsHandler(t *testing.T) {
+	cands := detectFiles(t, map[string]string{
+		"fulfilment/pyproject.toml": "[project]\nname = \"fulfilment\"\n",
+		"infra/main.tf": `
+resource "aws_sqs_queue" "orders" {
+  name = "orders"
+}
+
+resource "aws_lambda_function" "worker" {
+  handler  = "app/handler.main"
+  image    = "123456789012.dkr.ecr.eu-west-2.amazonaws.com/infra/worker"
+  filename = "${path.module}/../fulfilment/dist.zip"
+}
+
+resource "aws_lambda_event_source_mapping" "orders" {
+  event_source_arn = aws_sqs_queue.orders.arn
+  function_name    = aws_lambda_function.worker.arn
+}
+`,
+	})
+	mustFind(t, cands, "queue:fulfilment/orders", "fulfilment")
+}

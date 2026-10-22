@@ -96,3 +96,61 @@ const name = process.env.SHOP_NAME;
 		t.Errorf("candidates %v: a component's own URL, a database's and other names aren't seams", ids(cands))
 	}
 }
+
+func TestClientsAndSubRoutersDontPassForServers(t *testing.T) {
+	cands := detectFiles(t, map[string]string{
+		"web/package.json":      `{"name": "web"}`,
+		"web/src/api.js":        "api.get('/prices');\n",
+		"users/package.json":    `{"name": "users"}`,
+		"users/routes.js":       "router.get('/:id', user);\n",
+		"pricing/package.json":  `{"name": "pricing"}`,
+		"pricing/server.js":     "app.get('/prices', prices);\n",
+		"checkout/package.json": `{"name": "checkout"}`,
+		"checkout/prices.js":    "fetch('/prices');\n",
+	})
+	mustFind(t, cands, "http:pricing/api", "pricing", "checkout")
+	mustFind(t, cands, "http:users/api", "users")
+	if len(cands) != 2 {
+		t.Errorf("candidates %v: an axios instance named api serves nothing", ids(cands))
+	}
+}
+
+func TestRepliesAndGRPCsOwnServicesArentSeams(t *testing.T) {
+	cands := detectFiles(t, map[string]string{
+		"checkout/package.json": `{"name": "checkout", "dependencies": {"kafkajs": "^2.2.4"}}`,
+		"checkout/server.js":    "res.send('ok');\nproducer.send('orders', message);\n",
+		"pricing/go.mod":        "module example.com/pricing\n\nrequire google.golang.org/grpc v1.64.0\n",
+		"pricing/main.go":       "healthpb.RegisterHealthServer(s, health.NewServer())\nc := healthpb.NewHealthClient(conn)\n",
+	})
+	mustFind(t, cands, "event:checkout/orders", "checkout")
+	if len(cands) != 1 {
+		t.Errorf("candidates %v", ids(cands))
+	}
+}
+
+func TestAWordThatMerelyStartsLikeProduceSaysNothingOfDirection(t *testing.T) {
+	cands := detectFiles(t, map[string]string{
+		"worker/pyproject.toml": "[project]\nname = \"worker\"\ndependencies = [\"boto3\"]\n",
+		"worker/work.py": `
+import os
+debug = os.environ.get("STAGE") != "production"
+queue = os.environ["ORDERS_QUEUE_URL"]
+
+
+def work(sqs):
+    return sqs.receive_message(QueueUrl=queue)
+`,
+	})
+	mustFind(t, cands, "queue:worker/orders", "worker")
+}
+
+func TestFrameworkPrefixesOnEnvNamesNameNoService(t *testing.T) {
+	cands := detectFiles(t, map[string]string{
+		"web/package.json": `{"name": "web"}`,
+		"web/config.js":    "const api = process.env.NEXT_PUBLIC_API_URL;\nconst prices = process.env.VITE_PRICING_URL;\n",
+	})
+	mustFind(t, cands, "http:pricing/api", "pricing", "web")
+	if len(cands) != 1 {
+		t.Errorf("candidates %v", ids(cands))
+	}
+}

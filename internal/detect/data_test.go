@@ -46,7 +46,17 @@ func TestATableOnlyItsOwnerUsesIsNoSeam(t *testing.T) {
 		"billing/requirements.txt":         "# pinned\npsycopg[binary]==3.2\n",
 		"billing/pyproject.toml":           "[project]\nname = \"billing\"\n",
 		"billing/bill.py":                  "conn.execute(\"SELECT * FROM invoices JOIN customers\")\n",
-		"billing/migrations/0001_init.sql": "create table if not exists public.invoices (id int);\n",
+		"billing/migrations/0001_init.sql": "create table if not exists public.invoices (id int);\ncreate table \"auth\".\"customers\" (id int);\n",
+	})
+	if len(cands) != 0 {
+		t.Errorf("candidates %v: a table read only by its owner isn't a seam, nor is a schema", ids(cands))
+	}
+}
+
+func TestToolsOwnConfigSchemasArentSeams(t *testing.T) {
+	cands := detectFiles(t, map[string]string{
+		"turbo.json":      `{"$schema": "https://turbo.build/schema.json"}`,
+		"web/vercel.json": `{"$schema": "https://openapi.vercel.sh/vercel.json"}`,
 	})
 	if len(cands) != 0 {
 		t.Errorf("candidates %v", ids(cands))

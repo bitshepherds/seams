@@ -17,7 +17,7 @@ const (
 var (
 	// migrationDirs are the directories migrations live in, by convention.
 	migrationDirs = []string{"migrations", "migrate", "alembic", "flyway", "liquibase"}
-	createTable   = regexp.MustCompile("(?i)create\\s+table\\s+(?:if\\s+not\\s+exists\\s+)?[\"`]?(?:\\w+\\.)?([a-z_][a-z0-9_]*)|\\bcreate_?[tT]able\\(\\s*[\"']([a-z_][a-z0-9_]*)")
+	createTable   = regexp.MustCompile("(?i)create\\s+table\\s+(?:if\\s+not\\s+exists\\s+)?(?:[\"`]?\\w+[\"`]?\\.)?[\"`]?([a-z_][a-z0-9_]*)|\\bcreate_?[tT]able\\(\\s*[\"']([a-z_][a-z0-9_]*)")
 	versionSeg    = regexp.MustCompile(`^(?:v\d+(?:\.\d+)*|latest|draft-\d+)$`)
 )
 
