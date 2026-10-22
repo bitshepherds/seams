@@ -11,7 +11,7 @@ import (
 // version is stamped in at build, by the release: -ldflags "-X main.version=…".
 var version = "dev"
 
-func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
+func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) } // coverage-ignore: os.Exit ends the test run; the scenarios cover it
 
 func run(args []string, out, errs io.Writer) int {
 	if len(args) == 1 && args[0] == "--version" {
