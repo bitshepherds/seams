@@ -1,0 +1,21 @@
+# Semgrep's own default ignores, which a .semgrepignore replaces, so they're
+# kept here.
+node_modules/
+build/
+dist/
+vendor/
+.env/
+.venv/
+.tox/
+*.min.js
+.npm/
+.yarn/
+test/
+tests/
+*_test.go
+.semgrep
+.semgrep_logs/
+
+# Detection's fixture repos: code that is read as text and never runs, built
+# to look like a real system's, insecure defaults and all.
+testdata/

@@ -1,0 +1,5 @@
+[project]
+name = "reports"
+dependencies = [
+  "grpcio>=1.64",
+]

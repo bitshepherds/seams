@@ -1,0 +1,24 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: pricing
+spec:
+  type: service
+  providesApis:
+    - quotes
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: checkout
+spec:
+  type: service
+  consumesApis:
+    - api:default/quotes
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: quotes
+spec:
+  type: openapi

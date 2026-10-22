@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/detect/v1",
+  "title": "seams detect --json",
+  "description": "The seams detection proposes for a repo, for a person to confirm: each with its provider, consumers, evidence by file and line, and confidence. Candidates the registry has rejected are left out.",
+  "type": "object",
+  "required": ["schema", "components", "candidates"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/detect/v1" },
+    "components": { "type": "array", "items": { "$ref": "#/$defs/component" } },
+    "candidates": { "type": "array", "items": { "$ref": "#/$defs/candidate" } }
+  },
+  "$defs": {
+    "component": {
+      "description": "A part of the repo that can take part in a seam: a directory with a manifest, named by it, or a top-level directory with none, named by the directory.",
+      "type": "object",
+      "required": ["name", "dir"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "dir": { "type": "string", "description": "Its directory, from the repo's root; . for the root." },
+        "manifest": { "type": "string", "description": "The manifest that names it: go.mod, package.json, pyproject.toml or serverless.yml." }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "required": ["id", "kind", "provider", "consumers", "audience", "confidence", "evidence", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/id",
+          "description": "Derived as the registry's ids are, so it matches a registered seam, or a rejection, by id. Its name is api for a provider's one API of a kind, when the evidence doesn't name it."
+        },
+        "kind": { "enum": ["http", "grpc", "graphql", "event", "queue", "file", "config", "table", "lib", "cli"] },
+        "provider": {
+          "description": "Who the evidence says provides it, or null when it doesn't say, or when several parties do.",
+          "oneOf": [{ "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/party" }, { "type": "null" }]
+        },
+        "consumers": {
+          "description": "The parties the evidence shows using it; empty when none is seen, such as for a public API.",
+          "type": "array",
+          "items": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/party" }
+        },
+        "audience": { "enum": ["internal", "public"] },
+        "contract": { "type": "string", "description": "A contract file that describes it, from the repo's root." },
+        "confidence": {
+          "description": "The strongest evidence's, one higher when two or more signals agree, and at most medium with no known provider.",
+          "enum": ["low", "medium", "high"]
+        },
+        "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } },
+        "notes": { "type": "array", "items": { "type": "string" }, "description": "What the person confirming it should know." }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["signal", "role", "party", "file", "line", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "signal": {
+          "description": "The kind of evidence; docs/DETECTION.md describes each.",
+          "enum": [
+            "catalog", "pact", "pact-library", "contract", "generator", "compat-check",
+            "http-server", "http-route", "http-client", "route-call", "grpc", "org-client", "workspace", "vendor",
+            "broker", "schema-registry", "messaging", "env",
+            "iac-resource", "iac-gateway", "iac-subscription", "remote-state", "serverless",
+            "migrations", "db-client", "config-schema"
+          ]
+        },
+        "role": {
+          "description": "The party's part: provides; consumes; owns, which provides unless other evidence names a provider; or supports, which makes the seam likelier without naming it.",
+          "enum": ["provides", "consumes", "owns", "supports"]
+        },
+        "party": { "type": "string" },
+        "file": { "type": "string", "description": "From the repo's root." },
+        "line": { "type": "integer", "minimum": 1 },
+        "text": { "type": "string", "description": "The line, trimmed, and cut at 120 characters." }
+      }
+    }
+  }
+}

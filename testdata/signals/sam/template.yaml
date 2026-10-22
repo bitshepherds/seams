@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  OrdersTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: orders
+  Fulfil:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: fulfilment/
+      Handler: app.handler
+      Runtime: python3.12
+      Events:
+        Orders:
+          Type: SNS
+          Properties:
+            Topic: !Ref OrdersTopic

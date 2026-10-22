@@ -1,0 +1,46 @@
+[
+  {
+    "id": "http:pricing/api",
+    "why": "checkout calls pricing's quotes over HTTP"
+  },
+  {
+    "id": "grpc:pricing/pricing",
+    "why": "reports calls pricing's gRPC service"
+  },
+  {
+    "id": "http:checkout/api",
+    "why": "the public API, through the gateway"
+  },
+  {
+    "id": "event:checkout/orders",
+    "why": "checkout publishes orders; fulfilment consumes them"
+  },
+  {
+    "id": "queue:mailer/emails",
+    "why": "checkout sends emails to the queue mailer receives from"
+  },
+  {
+    "id": "http:stripe/api",
+    "why": "checkout calls Stripe, from two modules"
+  },
+  {
+    "id": "lib:money/api",
+    "why": "checkout depends on the workspace library money"
+  },
+  {
+    "id": "table:fulfilment/shipments",
+    "why": "reports reads fulfilment's table"
+  },
+  {
+    "id": "config:network/state",
+    "why": "infra reads the network repo's Terraform state"
+  },
+  {
+    "id": "config:flagd/flags",
+    "why": "checkout's flags file is flagd's config"
+  },
+  {
+    "id": "file:reports/daily-csv",
+    "why": "finance reads the CSV reports writes; nothing in the code names its reader"
+  }
+]

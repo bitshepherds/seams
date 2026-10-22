@@ -1,0 +1,4 @@
+{
+  "$schema": "https://github.com/acme/deployer/schemas/settings/v1",
+  "replicas": 2
+}

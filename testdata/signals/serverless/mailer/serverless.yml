@@ -1,0 +1,17 @@
+service: mailer
+provider:
+  name: aws
+  runtime: nodejs20.x
+functions:
+  send:
+    handler: handler.send
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt: [EmailsQueue, Arn]
+resources:
+  Resources:
+    EmailsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: emails

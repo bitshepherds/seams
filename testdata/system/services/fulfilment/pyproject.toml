@@ -1,0 +1,6 @@
+[project]
+name = "fulfilment"
+dependencies = [
+  "fastapi>=0.115",
+  "confluent-kafka>=2.5",
+]

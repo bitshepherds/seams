@@ -29,6 +29,7 @@ type command struct {
 
 var commands = map[string]command{
 	"add":      {"register a seam", add},
+	"detect":   {"propose the repo's seams, with evidence; --drift compares them with the registry", detectSeams},
 	"import":   {"fill in seams from catalog-info.yaml", importFrom},
 	"list":     {"list the registered seams, one a line", list},
 	"reject":   {"remember a candidate that isn't a seam, so it isn't proposed again", reject},

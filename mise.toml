@@ -41,8 +41,9 @@ run = [
   "goreleaser check",
   "zizmor .github/workflows/",
   "govulncheck ./...",
-  # Known vulnerabilities, and licences outside the allowed list.
-  "osv-scanner scan source --recursive --licenses=MIT,BSD-2-Clause,BSD-3-Clause,Apache-2.0,ISC .",
+  # Known vulnerabilities, and licences outside the allowed list. testdata/
+  # holds detection's fixture repos, whose manifests are read, never installed.
+  "osv-scanner scan source --recursive --x-exclude=testdata --licenses=MIT,BSD-2-Clause,BSD-3-Clause,Apache-2.0,ISC .",
   "go test -coverprofile=cover.out ./...",
   "go-test-coverage --config .testcoverage.yml",
   # This repo's own registry, checked by the seams it builds.

@@ -1,0 +1,6 @@
+{
+  "name": "@acme/checkout",
+  "dependencies": {
+    "@acme/pricing-client": "^1.0.0"
+  }
+}

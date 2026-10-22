@@ -1,0 +1,6 @@
+{
+  "$schema": "https://github.com/acme/flagd/schemas/flags/v1",
+  "flags": {
+    "new-basket": false
+  }
+}
