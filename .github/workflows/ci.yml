@@ -25,9 +25,10 @@ jobs:
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
       - name: The pull request title is a Conventional Commit header
         if: github.event_name == 'pull_request'
-        # cog reads git's user.name, which a fresh runner doesn't have.
+        # cog reads git's user name and email, which a fresh runner doesn't have.
         run: |
           git config --global user.name ci
+          git config --global user.email ci@localhost
           printf '%s\n' "$PR_TITLE" | cog verify --file -
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
