@@ -1,0 +1,30 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions: {}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      # Publishes the GitHub release and its assets.
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The whole history, for the changelog since the last tag.
+          fetch-depth: 0
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          # A release never builds from a cache another run could have poisoned.
+          cache: false
+      - run: mise run check
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: goreleaser release --clean
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
