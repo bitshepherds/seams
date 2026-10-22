@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1",
+  "title": "A repo's seam registry",
+  "description": "Each seam a repo has, with its provider, consumers, contract and test world. It holds no practice status or other tool's state.",
+  "type": "object",
+  "required": ["schema", "seams"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1" },
+    "seams": { "type": "array", "items": { "$ref": "#/$defs/seam" } },
+    "rejected": { "type": "array", "items": { "$ref": "#/$defs/rejection" } }
+  },
+  "$defs": {
+    "id": {
+      "description": "<kind>:<provider>/<name>, where provider is _ for a seam with no single owner.",
+      "type": "string"
+    },
+    "party": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "description": "A component, or a vendor: the name Pact uses for the pacticipant, where Pact is used." },
+        "external": { "type": "boolean", "description": "Outside the system, such as a vendor." },
+        "inRepo": { "type": "boolean", "description": "Its code is in this repo." }
+      }
+    },
+    "seam": {
+      "type": "object",
+      "required": ["id", "provider", "consumers", "audience"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "was": { "type": "array", "items": { "$ref": "#/$defs/id" }, "description": "Ids the seam had before it was renamed." },
+        "provider": {
+          "description": "Whoever owns the exchange surface, or null for a seam with no single owner.",
+          "oneOf": [{ "$ref": "#/$defs/party" }, { "type": "null" }]
+        },
+        "consumers": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/party" } },
+        "audience": { "enum": ["internal", "public"] },
+        "contract": {
+          "type": "object",
+          "required": ["location"],
+          "additionalProperties": false,
+          "properties": {
+            "location": { "type": "string", "description": "A path in the repo, or a URL." },
+            "owner": { "type": "string" }
+          }
+        },
+        "deploysIndependently": { "type": "boolean" },
+        "testWorld": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["side", "test", "tier"],
+            "additionalProperties": false,
+            "properties": {
+              "side": { "enum": ["provider", "consumer"] },
+              "test": { "type": "string", "description": "The contract test: a path, or a name." },
+              "tier": { "type": "string", "description": "The test policy's tier it runs in, such as gate." }
+            }
+          }
+        }
+      }
+    },
+    "rejection": {
+      "description": "A candidate the team decided isn't a seam, so it isn't proposed again.",
+      "type": "object",
+      "required": ["id", "signal", "file"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "signal": { "type": "string", "description": "The kind of evidence that proposed it." },
+        "file": { "type": "string", "description": "The evidence's file, without its line, which moves." },
+        "reason": { "type": "string" }
+      }
+    }
+  }
+}
