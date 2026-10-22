@@ -2,6 +2,7 @@
 [tools]
 actionlint = "1.7.12"
 betterleaks = "1.9.0"
+cocogitto = "7.0.0"
 "github:vladopajic/go-test-coverage" = "2.20.0"
 go = "1.27.3"
 "go:golang.org/x/vuln/cmd/govulncheck" = "1.9.0"
@@ -37,7 +38,8 @@ run = [
   "actionlint",
   "zizmor .github/workflows/",
   "govulncheck ./...",
-  "osv-scanner scan source --recursive .",
+  # Known vulnerabilities, and licences outside the allowed list.
+  "osv-scanner scan source --recursive --licenses=MIT,BSD-2-Clause,BSD-3-Clause,Apache-2.0,ISC .",
   "go test -coverprofile=cover.out ./...",
   "go-test-coverage --config .testcoverage.yml",
 ]
