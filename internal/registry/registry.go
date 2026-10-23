@@ -57,6 +57,7 @@ type ContractTest struct {
 	Side string `json:"side"`
 	Test string `json:"test"`
 	Tier string `json:"tier"`
+	Tool string `json:"tool,omitempty"`
 }
 
 // Rejection is a candidate the team decided isn't a seam, identified by its

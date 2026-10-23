@@ -23,12 +23,14 @@
         {
           "side": "provider",
           "test": "cmd/seams TestEachCommandsJSONOutputMatchesItsPublishedSchema",
-          "tier": "gate"
+          "tier": "gate",
+          "tool": "go test"
         },
         {
           "side": "provider",
           "test": "schemas TestSchemasAreCompatibleWithTheLastRelease",
-          "tier": "gate"
+          "tier": "gate",
+          "tool": "go test"
         }
       ]
     }

@@ -58,7 +58,8 @@
             "properties": {
               "side": { "enum": ["provider", "consumer"] },
               "test": { "type": "string", "description": "The contract test: a path, or a name." },
-              "tier": { "type": "string", "description": "The test policy's tier it runs in, such as gate." }
+              "tier": { "type": "string", "description": "The test policy's tier it runs in, such as gate." },
+              "tool": { "type": "string", "description": "The tool that runs it, such as Pact or go test." }
             }
           }
         }

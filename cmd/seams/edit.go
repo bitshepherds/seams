@@ -27,8 +27,8 @@ func (n *names) Set(v string) error {
 
 // details are the flags that describe a seam, shared by add and update.
 type details struct {
-	audience, contract, owner, independent string
-	external, inRepo, tests                names
+	audience, contract, owner, independent, tool string
+	external, inRepo, tests                      names
 }
 
 func (d *details) on(fs *flag.FlagSet) {
@@ -39,6 +39,7 @@ func (d *details) on(fs *flag.FlagSet) {
 	fs.Var(&d.external, "external", "a party outside the system, such as a vendor (repeatable)")
 	fs.Var(&d.inRepo, "in-repo", "a party whose code is in this repo (repeatable)")
 	fs.Var(&d.tests, "test", "a contract test, as <provider|consumer>:<test>:<tier> (repeatable)")
+	fs.StringVar(&d.tool, "tool", "", "the tool that runs the --test(s) given with it, such as Pact")
 }
 
 // apply sets on the seam each detail given.
@@ -65,11 +66,15 @@ func (d *details) apply(s *registry.Seam) error {
 		}
 		s.DeploysIndependently = &v
 	}
+	if d.tool != "" && len(d.tests) == 0 {
+		return errors.New("--tool names the tool that runs a --test: give --test too")
+	}
 	for _, spec := range d.tests {
 		test, err := contractTest(spec)
 		if err != nil {
 			return err
 		}
+		test.Tool = d.tool
 		s.TestWorld = append(s.TestWorld, test)
 	}
 	for _, p := range parties(s) {

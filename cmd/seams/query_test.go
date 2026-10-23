@@ -36,8 +36,8 @@ func TestShowPrintsOneSeamFoundByItsIDOrAFormerOne(t *testing.T) {
 	if code, _, errs := seams("show", "--registry", path, "http:stripe/nothing"); code != 1 || !strings.Contains(errs, "no seam") {
 		t.Errorf("show of a missing seam = %d, %q", code, errs)
 	}
-	if code, _, _ := seams("show", "--registry", path); code != 2 {
-		t.Errorf("show with no id gave %d", code)
+	if code, _, _ := seams("show", "--registry", path, "http:stripe/payments", "http:stripe/charges"); code != 2 {
+		t.Errorf("show with two ids gave %d", code)
 	}
 }
 
