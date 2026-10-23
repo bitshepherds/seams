@@ -1,12 +1,23 @@
 # Contributing
 
-This repo is Go. Its tools are pinned in `mise.toml`.
+This repo is Go. Its tools are pinned in `mise.toml`, and `mise.lock` records
+each one's checksum and download URL for Linux and macOS. CI installs from the
+lockfile, locked, with the mise version its workflows name, so it runs exactly
+the tools you do.
 
 ## Set up
 
-1. Install [mise](https://mise.jdx.dev/getting-started.html).
+1. Install [mise](https://mise.jdx.dev/getting-started.html), at least the
+   `min_version` in `mise.toml`.
 2. Run `mise install` in the repo. It installs the pinned tools, and the git
    hooks.
+
+## Change a tool
+
+Change its version in `mise.toml`, then run `mise lock` to update `mise.lock`
+for every platform, and commit both. CI refuses a tool the lockfile doesn't
+hold. Tools from npm, pipx and `go install` are locked by version only: the
+lockfile holds no checksum for them, or for what they depend on.
 
 ## Check your work
 

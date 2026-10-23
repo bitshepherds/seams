@@ -6,6 +6,10 @@ on:
 
 permissions: {}
 
+# Every tool installs from mise.lock, and the job fails on one it doesn't hold.
+env:
+  MISE_LOCKED: "1"
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -23,6 +27,8 @@ jobs:
           fetch-depth: 0
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
+          # The mise the repo is locked with, not whatever is current.
+          version: 2026.9.0
           # A release never builds from a cache another run could have poisoned.
           cache: false
       - run: mise run check
