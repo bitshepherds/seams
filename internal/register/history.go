@@ -12,7 +12,7 @@ import (
 )
 
 // DefaultHistory is where a repo keeps its register's history.
-const DefaultHistory = ".sheepdog/seams-history.json"
+const DefaultHistory = ".sheepdog/seams/history.json"
 
 // History is the register's count on each day it was recorded.
 type History struct {

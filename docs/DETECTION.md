@@ -11,7 +11,7 @@ line, and a confidence.
 seams detect                 # the candidates, with their evidence
 seams detect --json          # the same, to schemas/detect.json
 seams detect --drift         # how the registry differs from the code; exits 1 if it does
-seams detect --root ../shop  # another repo, with the registry in its .sheepdog/
+seams detect --root ../shop  # another repo, with the registry in its .sheepdog/seams/
 ```
 
 ## Components

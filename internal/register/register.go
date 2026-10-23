@@ -21,7 +21,7 @@ const Top = 6
 
 // DefaultStatus is where seams render keeps the status file it last used, so
 // --check draws the same register.
-const DefaultStatus = ".sheepdog/seams-status.json"
+const DefaultStatus = ".sheepdog/seams/status.json"
 
 // Status is each seam's rung and gaps, as another tool judged them.
 type Status struct {

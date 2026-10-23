@@ -212,7 +212,7 @@ func copyFixture(t gobdd.StepTest, ctx gobdd.Context, name string) {
 // writeRegistry writes the scenario's registry, at the default path, with
 // the seams given as JSON.
 func writeRegistry(t gobdd.StepTest, ctx gobdd.Context, seams string) {
-	path := filepath.Join(get(t, ctx, "dir"), ".sheepdog", "seams.json")
+	path := filepath.Join(get(t, ctx, "dir"), ".sheepdog", "seams", "registry.json")
 	doc := `{"schema": "` + schemas.ID("registry") + `", "seams": [` + seams + `]}`
 	if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
 		t.Fatal(err)

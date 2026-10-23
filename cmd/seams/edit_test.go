@@ -10,7 +10,9 @@ import (
 )
 
 // emptyRegistry is the path of a registry not written yet.
-func emptyRegistry(t *testing.T) string { return filepath.Join(t.TempDir(), ".sheepdog", "seams.json") }
+func emptyRegistry(t *testing.T) string {
+	return filepath.Join(t.TempDir(), ".sheepdog", "seams", "registry.json")
+}
 
 func mustLoad(t *testing.T, path string) *registry.Registry {
 	t.Helper()
