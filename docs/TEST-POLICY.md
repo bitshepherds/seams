@@ -8,7 +8,7 @@ its JSON output, and the registry file, each described by a JSON Schema.
 ## The tiers
 
 | Tier | When it runs | Budget | Command |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Pre-commit | before every commit | seconds | `mise run fast` |
 | The gate | before every push, and in CI on each pull request and each merge to `main` | under 10 minutes; about 6 seconds today | `mise run check` |
 | Scheduled | weekly, in CI | 30 minutes | the gate, then fuzzing |
@@ -60,7 +60,7 @@ deleted by then.
 ## The tools
 
 | What | Tool |
-|---|---|
+| --- | --- |
 | Runner | `go test` |
 | Coverage | go-test-coverage, from `.testcoverage.yml` |
 | Scenarios | gobdd, not godog, whose MPL-2.0 dependencies the licence check refuses |
