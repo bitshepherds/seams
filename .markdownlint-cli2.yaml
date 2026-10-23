@@ -1,0 +1,7 @@
+# Markdown lint. testdata/ holds detection's fixture repos, kept as found.
+config:
+  # Prose is wrapped where it reads best, not at a fixed width.
+  MD013: false
+ignores:
+  - testdata/**
+  - dist/**

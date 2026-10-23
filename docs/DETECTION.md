@@ -53,7 +53,7 @@ Each piece of evidence names its signal, and its party's role: `provides`;
 or `supports`, which makes a seam likelier without naming it.
 
 | Signal | What it reads | Role |
-|---|---|---|
+| --- | --- | --- |
 | `catalog` | Backstage `catalog-info.yaml`: `providesApis` and `consumesApis`, and each API's type | provides, consumes |
 | `pact` | A Pact file's consumer and provider; a message pact's are an event | provides, consumes |
 | `pact-library` | Pact's library in a manifest | supports |
@@ -112,7 +112,7 @@ own around the vendor, each module depends on its API directly.
 ## Ecosystems
 
 | | Go | TypeScript and JavaScript | Python |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Manifests | `go.mod` | `package.json` | `pyproject.toml` (PEP 621 and Poetry), `requirements.txt` |
 | HTTP servers | gin, echo, chi, fiber, `net/http` | Express, Fastify, Koa, NestJS, Hono, `http` | FastAPI, Flask, Django |
 | GraphQL servers | gqlgen, graphql-go | Apollo Server, GraphQL Yoga | Strawberry, Graphene, Ariadne |
