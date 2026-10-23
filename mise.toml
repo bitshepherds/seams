@@ -1,3 +1,11 @@
+# The least mise that reads this file as intended, and its lockfile.
+min_version = "2026.9.0"
+
+# mise.lock records each tool's checksum and download URL for every platform
+# the repo builds on, and CI installs from it, locked.
+[settings]
+lockfile = true
+
 # The toolchain, pinned: `mise install` installs exactly these versions.
 [tools]
 actionlint = "1.7.12"
