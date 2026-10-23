@@ -1,7 +1,6 @@
 {
   "repo": "bitshepherds/sheepdog-seams",
   "gate": "mise run check",
-  "mergeMethod": "squash",
   "prTitleGate": "cog verify --file -",
   "profile": {
     "purpose": "Finds a system's contract boundaries (seams), and keeps a registry of each seam's provider, consumers, contract and test world.",
@@ -37,13 +36,14 @@
       "JSON Schema"
     ]
   },
+  "install": "mise install && go mod download",
   "survey": {
     "scripts": "44136fa355b3",
     "workspaces": "4f53cda18c2b",
     "makeTargets": "4f53cda18c2b",
-    "ci": "338c149a0d6c",
+    "ci": "c3cb82c937ff",
     "hooks": "2485ba485215",
-    "lockfiles": "4f53cda18c2b",
+    "lockfiles": "c45706289286",
     "commitlint": "4f53cda18c2b",
     "toolchain": "5cec2de0a04f"
   }
