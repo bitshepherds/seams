@@ -72,3 +72,7 @@ carries them. Sheepdog uses `seams` only through this output.
   coverage ladder.
 - [Test policy](docs/TEST-POLICY.md): which tests run where.
 - [Contributing](CONTRIBUTING.md): setting up, the gate, and releasing.
+
+## Licence
+
+Apache License 2.0: see [LICENSE](LICENSE).
