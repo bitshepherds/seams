@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/status/v1",
+  "title": "seams show and render --status",
+  "description": "Each seam's rung on the coverage ladder, and its gaps, as another tool judged them. Sheepdog writes it; seams only reads it, so seams never judges practices.",
+  "type": "object",
+  "required": ["schema", "seams"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/status/v1" },
+    "seams": {
+      "type": "object",
+      "description": "Each rated seam, by its id, or by an id it had before a rename.",
+      "propertyNames": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/id" },
+      "additionalProperties": { "$ref": "#/$defs/rating" }
+    }
+  },
+  "$defs": {
+    "rating": {
+      "type": "object",
+      "required": ["rung"],
+      "additionalProperties": false,
+      "properties": {
+        "rung": { "$ref": "#/$defs/rung" },
+        "gaps": { "$ref": "#/$defs/gaps" }
+      }
+    },
+    "rung": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 6,
+      "description": "The highest rung the seam has reached: 0, none; 1, the seam, its parties and audience are known; 2, a versioned, linted contract exists; 3, each change is checked for compatibility against trunk and the last release; 4, the consumer tests against the contract; 5, the provider is verified against it; 6, a deploy gate exists where the sides deploy separately."
+    },
+    "gaps": { "type": "array", "items": { "type": "string" }, "description": "What the seam lacks to climb, most pressing first." }
+  }
+}

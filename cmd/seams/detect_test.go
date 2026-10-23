@@ -85,13 +85,13 @@ func TestDetectDriftExitsOneNamingWhatDrifted(t *testing.T) {
 
 func TestDetectReadsTheRegistryInTheRootItReads(t *testing.T) {
 	root := t.TempDir()
-	if err := os.MkdirAll(filepath.Join(root, ".sheepdog"), 0o750); err != nil {
+	if err := os.MkdirAll(filepath.Join(root, ".sheepdog", "seams"), 0o750); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(root, ".sheepdog", "seams.json"), []byte("{"), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(root, ".sheepdog", "seams", "registry.json"), []byte("{"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if code, _, errs := seams("detect", "--root", root); code != 1 || !strings.Contains(errs, "seams.json") {
+	if code, _, errs := seams("detect", "--root", root); code != 1 || !strings.Contains(errs, "registry.json") {
 		t.Errorf("a broken registry in the root gave %d, %q", code, errs)
 	}
 	if code, _, errs := seams("detect", "--root", filepath.Join(root, "missing"), "--registry", emptyRegistry(t)); code != 1 || errs == "" {

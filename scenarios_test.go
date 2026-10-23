@@ -43,6 +43,7 @@ func TestScenarios(t *testing.T) {
 	givenSteps(suite)
 	whenSteps(suite, bin)
 	thenSteps(suite, bin)
+	registerSteps(suite)
 	suite.Run()
 }
 
@@ -64,6 +65,51 @@ func givenSteps(suite *gobdd.Suite) {
 		writeRegistry(t, ctx, `{"id": "http:legacy/api", "provider": {"name": "legacy"}, "consumers": [{"name": "checkout"}], "audience": "internal"}`)
 	})
 }
+
+// registerSteps are the register's: seams show and render.
+func registerSteps(suite *gobdd.Suite) {
+	suite.AddStep(`a registry of three seams, and a status file that puts one of them at no coverage`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		writeRegistry(t, ctx, registerSeams)
+		status := `{"schema": "` + schemas.ID("status") + `", "seams": {"event:backend/quote-accepted": {"rung": 4},
+			"http:stripe/payments": {"rung": 0, "gaps": ["no contract"]}, "http:backend/quotes": {"rung": 2}}}`
+		if err := os.WriteFile(filepath.Join(get(t, ctx, "dir"), "status.json"), []byte(status), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	})
+	suite.AddStep(`a registry with internal seams and one that crosses out of the system`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		writeRegistry(t, ctx, registerSeams)
+	})
+	suite.AddStep(`the uncovered seam is listed first, and each seam shows its rung`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		out := get(t, ctx, "stdout")
+		if !strings.HasPrefix(out, "http:stripe/payments\nrung:                  0 of 6\n") {
+			t.Errorf("seams show printed\n%s", out)
+		}
+		if strings.Count(out, "\nrung: ") != 3 {
+			t.Errorf("not every seam shows its rung:\n%s", out)
+		}
+	})
+	suite.AddStep(`docs/SEAMS.md lists the internal seams apart from the external one, under a diagram of the components and their seams`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		data, err := os.ReadFile(filepath.Join(get(t, ctx, "dir"), "docs", "SEAMS.md"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		doc := string(data)
+		diagram, internal, out := strings.Index(doc, "```mermaid"), strings.Index(doc, "## Internal seams"), strings.Index(doc, "## Seams that cross out of the system")
+		under := func(id string, from, to int) bool {
+			i := strings.Index(doc, "`"+id+"`")
+			return i > from && (to < 0 || i < to)
+		}
+		if diagram < 0 || internal < diagram || out < internal || !under("http:stripe/payments", out, -1) ||
+			!under("event:backend/quote-accepted", internal, out) || !under("http:backend/quotes", internal, out) {
+			t.Errorf("seams render wrote\n%s", doc)
+		}
+	})
+}
+
+// registerSeams are two internal seams and a vendor's, which crosses out.
+const registerSeams = `{"id": "event:backend/quote-accepted", "provider": {"name": "backend"}, "consumers": [{"name": "billing"}], "audience": "internal"},
+	{"id": "http:stripe/payments", "provider": {"name": "stripe", "external": true}, "consumers": [{"name": "backend"}], "audience": "public"},
+	{"id": "http:backend/quotes", "provider": {"name": "backend"}, "consumers": [{"name": "web"}], "audience": "internal"}`
 
 func whenSteps(suite *gobdd.Suite, bin string) {
 	suite.AddStep(`a developer adds the seam (\S+), provided by (\S+) and consumed by (\S+)`, func(t gobdd.StepTest, ctx gobdd.Context, id, provider, consumer string) {
@@ -166,7 +212,7 @@ func copyFixture(t gobdd.StepTest, ctx gobdd.Context, name string) {
 // writeRegistry writes the scenario's registry, at the default path, with
 // the seams given as JSON.
 func writeRegistry(t gobdd.StepTest, ctx gobdd.Context, seams string) {
-	path := filepath.Join(get(t, ctx, "dir"), ".sheepdog", "seams.json")
+	path := filepath.Join(get(t, ctx, "dir"), ".sheepdog", "seams", "registry.json")
 	doc := `{"schema": "` + schemas.ID("registry") + `", "seams": [` + seams + `]}`
 	if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
 		t.Fatal(err)

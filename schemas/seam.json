@@ -8,6 +8,8 @@
   "additionalProperties": false,
   "properties": {
     "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/seam/v1" },
-    "seam": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/seam" }
+    "seam": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/seam" },
+    "rung": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/status/v1#/$defs/rung" },
+    "gaps": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/status/v1#/$defs/gaps" }
   }
 }

@@ -51,4 +51,6 @@ run = [
   "go-test-coverage --config .testcoverage.yml",
   # This repo's own registry, checked by the seams it builds.
   "go run ./cmd/seams validate",
+  # This repo's register, docs/SEAMS.md, kept up to date with the registry.
+  "go run ./cmd/seams render --check",
 ]

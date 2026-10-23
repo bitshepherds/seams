@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/bitshepherds/sheepdog-seams/internal/registry"
@@ -33,7 +34,8 @@ var commands = map[string]command{
 	"import":   {"fill in seams from catalog-info.yaml", importFrom},
 	"list":     {"list the registered seams, one a line", list},
 	"reject":   {"remember a candidate that isn't a seam, so it isn't proposed again", reject},
-	"show":     {"show one seam", show},
+	"render":   {"write the register, with a diagram, to docs/SEAMS.md", render},
+	"show":     {"show one seam, or with no id the register of them all", show},
 	"update":   {"change a registered seam", update},
 	"validate": {"check the registry, and report its findings", validate},
 }
@@ -88,6 +90,12 @@ func (c *cli) flags(name string) *flag.FlagSet {
 // parse reads a command's flags, before or after its positional arguments,
 // into c.args, and says whether to carry on; on false, the command returns 2.
 func (c *cli) parse(fs *flag.FlagSet, args []string, positional int) bool {
+	return c.parseUpTo(fs, args, positional, positional)
+}
+
+// parseUpTo is parse for a command that takes between least and most
+// positional arguments.
+func (c *cli) parseUpTo(fs *flag.FlagSet, args []string, least, most int) bool {
 	c.args = nil
 	for {
 		if err := fs.Parse(args); err != nil {
@@ -99,8 +107,12 @@ func (c *cli) parse(fs *flag.FlagSet, args []string, positional int) bool {
 		c.args = append(c.args, fs.Arg(0))
 		args = fs.Args()[1:]
 	}
-	if len(c.args) != positional {
-		_, _ = fmt.Fprintf(c.errs, "%s: want %d argument(s), got %q\n", fs.Name(), positional, strings.Join(c.args, " "))
+	if len(c.args) < least || len(c.args) > most {
+		want := strconv.Itoa(least)
+		if most > least {
+			want += " to " + strconv.Itoa(most)
+		}
+		_, _ = fmt.Fprintf(c.errs, "%s: want %s argument(s), got %q\n", fs.Name(), want, strings.Join(c.args, " "))
 		return false
 	}
 	return true

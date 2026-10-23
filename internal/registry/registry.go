@@ -15,7 +15,7 @@ import (
 )
 
 // DefaultPath is where a repo keeps its registry, unless --registry says.
-const DefaultPath = ".sheepdog/seams.json"
+const DefaultPath = ".sheepdog/seams/registry.json"
 
 // Schema names the registry file's schema.
 const Schema = "registry"
@@ -57,6 +57,7 @@ type ContractTest struct {
 	Side string `json:"side"`
 	Test string `json:"test"`
 	Tier string `json:"tier"`
+	Tool string `json:"tool,omitempty"`
 }
 
 // Rejection is a candidate the team decided isn't a seam, identified by its

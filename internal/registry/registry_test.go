@@ -161,7 +161,7 @@ func TestRejectedCandidateWithAMalformedIDIsRefused(t *testing.T) {
 }
 
 func TestRegistrySavesAndLoadsAsItWas(t *testing.T) {
-	path := filepath.Join(t.TempDir(), ".sheepdog", "seams.json")
+	path := filepath.Join(t.TempDir(), ".sheepdog", "seams", "registry.json")
 	independent := true
 	s := seam("http:stripe/payments", &Party{Name: "stripe", External: true}, "checkout")
 	s.Consumers[0].InRepo = true
