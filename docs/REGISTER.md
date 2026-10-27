@@ -49,12 +49,20 @@ rungs are:
 | 3 | each change checked for compatibility against trunk and the last release |
 | 4 | consumer tests against the contract |
 | 5 | the provider verified against it |
-| 6 | a deploy gate, where the sides deploy separately |
+| 6 | a deploy gate, where the sides deploy separately and the provider isn't an outside vendor |
 
-A seam's top is the highest rung it can reach. A seam whose sides deploy
-together (`deploysIndependently: false`) tops out at rung 5, since a deploy
-gate has nothing to guard, so at its top it reads `5 of 5`. Any other seam
-tops out at rung 6. `seams show --json` gives each seam's `top`. A rung
+A seam's top is the highest rung it can reach. Two kinds of seam top out at
+rung 5, since a deploy gate has nothing to guard, so at their top they read
+`5 of 5`:
+
+- a seam whose sides deploy together (`deploysIndependently: false`);
+- a seam whose provider is an outside vendor (`provider.external: true`),
+  whatever `deploysIndependently` says. A payment provider releases on its
+  own schedule, and none of our deploys can hold its release back, so
+  `http:stripe/payments` at rung 5 is at its top.
+
+Any other seam tops out at rung 6, including one whose consumer is external:
+we can gate our own release on what an outside consumer expects. `seams show --json` gives each seam's `top`. A rung
 above the top is shown as the status file gives it, such as `6 of 5`: the
 rating is that tool's judgement, not seams'.
 
