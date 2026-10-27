@@ -50,7 +50,7 @@ func show(c *cli, args []string) int {
 	}
 	e := register.Rate(r, *s, st)
 	if c.json {
-		doc := map[string]any{"seam": s}
+		doc := map[string]any{"seam": s, "top": e.Top}
 		if e.Rung != nil {
 			doc["rung"] = *e.Rung
 		}

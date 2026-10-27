@@ -19,6 +19,16 @@ import (
 // Top is the coverage ladder's top rung. Rung 0 is no coverage at all.
 const Top = 6
 
+// TopOf is the highest rung the seam can reach: one below Top when its
+// sides deploy together, since a deploy gate between them has nothing to
+// guard, and Top when they deploy apart or no one has said.
+func TopOf(s registry.Seam) int {
+	if s.DeploysIndependently != nil && !*s.DeploysIndependently {
+		return Top - 1
+	}
+	return Top
+}
+
 // DefaultStatus is where seams render keeps the status file it last used, so
 // --check draws the same register.
 const DefaultStatus = ".sheepdog/seams/status.json"
@@ -56,7 +66,9 @@ type Entry struct {
 	// CrossesOut is true when any party is external, or the audience is public.
 	CrossesOut bool `json:"crossesOut"`
 	// Rung is nil when no status file rates the seam.
-	Rung *int     `json:"rung,omitempty"`
+	Rung *int `json:"rung,omitempty"`
+	// Top is the highest rung the seam can reach, rated or not: see TopOf.
+	Top  int      `json:"top"`
 	Gaps []string `json:"gaps,omitempty"`
 }
 
@@ -64,7 +76,7 @@ type Entry struct {
 // is one, by its id or one it had before a rename.
 func Rate(r *registry.Registry, s registry.Seam, st *Status) Entry {
 	kind, _, _ := strings.Cut(s.ID, ":")
-	e := Entry{Seam: s, Kind: kind, CrossesOut: crossesOut(s, externals(r))}
+	e := Entry{Seam: s, Kind: kind, CrossesOut: crossesOut(s, externals(r)), Top: TopOf(s)}
 	if st == nil {
 		return e
 	}

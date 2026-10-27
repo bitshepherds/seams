@@ -51,6 +51,13 @@ rungs are:
 | 5 | the provider verified against it |
 | 6 | a deploy gate, where the sides deploy separately |
 
+A seam's top is the highest rung it can reach. A seam whose sides deploy
+together (`deploysIndependently: false`) tops out at rung 5, since a deploy
+gate has nothing to guard, so at its top it reads `5 of 5`. Any other seam
+tops out at rung 6. `seams show --json` gives each seam's `top`. A rung
+above the top is shown as the status file gives it, such as `6 of 5`: the
+rating is that tool's judgement, not seams'.
+
 A rating is found by the seam's id, or by an id it had before a rename. One
 for an id the registry doesn't hold is named on stderr, not dropped
 silently. With a status file, the gaps come first: the seams it doesn't

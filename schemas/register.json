@@ -11,6 +11,11 @@
     "seams": { "type": "array", "items": { "$ref": "#/$defs/entry" } }
   },
   "$defs": {
+    "top": {
+      "type": "integer",
+      "enum": [5, 6],
+      "description": "The highest rung the seam can reach, whether or not it is rated: 5 when its sides deploy together (deploysIndependently is false), since a deploy gate has nothing to guard; 6 when they deploy apart, or that isn't recorded. Given by seams show --json for every seam, in the register and for a single seam; seams add and seams update --json, which also emit seam/v1, do not give it. A rung above it is shown as the status file gives it."
+    },
     "entry": {
       "type": "object",
       "required": ["seam", "kind", "crossesOut"],
@@ -20,6 +25,7 @@
         "kind": { "type": "string", "description": "The kind in the seam's id." },
         "crossesOut": { "type": "boolean", "description": "Whether the seam crosses out of the system: a party is external, or its audience is public." },
         "rung": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/status/v1#/$defs/rung" },
+        "top": { "$ref": "#/$defs/top" },
         "gaps": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/status/v1#/$defs/gaps" }
       }
     }
