@@ -46,6 +46,7 @@ func TestScenarios(t *testing.T) {
 	whenSteps(suite, bin)
 	thenSteps(suite, bin)
 	registerSteps(suite)
+	topSteps(suite, bin)
 	inRepoSteps(suite, bin)
 	contractSteps(suite)
 	suite.Run()
@@ -106,6 +107,57 @@ func registerSteps(suite *gobdd.Suite) {
 		if diagram < 0 || internal < diagram || out < internal || !under("http:stripe/payments", out, -1) ||
 			!under("event:backend/quote-accepted", internal, out) || !under("http:backend/quotes", internal, out) {
 			t.Errorf("seams render wrote\n%s", doc)
+		}
+	})
+}
+
+// topSteps are for each seam's top rung, which whether its sides deploy
+// apart sets.
+func topSteps(suite *gobdd.Suite, bin string) {
+	suite.AddStep(`a registry whose seam (\S+) deploys independently: (true|false|not known), and a status file that rates it (\d)`, func(t gobdd.StepTest, ctx gobdd.Context, id, independently, rung string) {
+		deploys := ""
+		if independently != "not known" {
+			deploys = `, "deploysIndependently": ` + independently
+		}
+		writeRegistry(t, ctx, `{"id": "`+id+`", "provider": {"name": "backend"}, "consumers": [{"name": "web"}], "audience": "internal"`+deploys+`}`)
+		status := `{"schema": "` + schemas.ID("status") + `", "seams": {"` + id + `": {"rung": ` + rung + `}}}`
+		if err := os.WriteFile(filepath.Join(get(t, ctx, "dir"), "status.json"), []byte(status), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	})
+	suite.AddStep(`docs/SEAMS.md shows (\S+) at (\d of \d)`, func(t gobdd.StepTest, ctx gobdd.Context, id, rung string) {
+		if code, _ := ctx.GetInt("code"); code != 0 {
+			t.Fatalf("seams failed: %s", get(t, ctx, "stderr"))
+		}
+		data, err := os.ReadFile(filepath.Join(get(t, ctx, "dir"), "docs", "SEAMS.md"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		row := regexp.MustCompile("(?m)^\\| `" + regexp.QuoteMeta(id) + "` \\|.*$").Find(data)
+		if !strings.Contains(string(row), "| "+rung+" |") {
+			t.Errorf("seams render wrote %s at\n%s", id, data)
+		}
+	})
+	suite.AddStep(`seams show --json gives (\S+) a top of (\d)`, func(t gobdd.StepTest, ctx gobdd.Context, id, top string) {
+		for _, args := range [][]string{{"show", "--json", "--status", "status.json"}, {"show", "--json", "--status", "status.json", id}} {
+			runSeams(t, ctx, bin, args...)
+			out := []byte(get(t, ctx, "stdout"))
+			var doc struct {
+				Seams []struct {
+					Top *int `json:"top"`
+				} `json:"seams"`
+				Top *int `json:"top"`
+			}
+			if err := json.Unmarshal(out, &doc); err != nil {
+				t.Fatalf("%v\n%s", err, out)
+			}
+			got := doc.Top
+			if len(doc.Seams) == 1 {
+				got = doc.Seams[0].Top
+			}
+			if got == nil || strconv.Itoa(*got) != top {
+				t.Errorf("seams %s gave\n%s", strings.Join(args, " "), out)
+			}
 		}
 	})
 }

@@ -72,6 +72,32 @@ func TestTheDiagramAndTablesEscapeWhatWouldBreakThem(t *testing.T) {
 	}
 }
 
+func TestASeamWhoseSidesDeployTogetherTopsOutAtRung5(t *testing.T) {
+	yes, no := true, false
+	r := &registry.Registry{}
+	for _, tc := range []struct {
+		independently *bool
+		rung, top     int
+		shown         string
+	}{
+		{&no, 5, 5, "5 of 5"},
+		{&yes, 5, 6, "5 of 6"},
+		{nil, 5, 6, "5 of 6"},
+		{&no, 6, 5, "6 of 5"},
+	} {
+		s := seam("http:backend/quotes", "backend", registry.Internal, registry.Party{Name: "web"})
+		s.DeploysIndependently = tc.independently
+		st := &Status{Seams: map[string]Rating{s.ID: {Rung: tc.rung}}}
+		e := Rate(r, s, st)
+		if e.Top != tc.top || RungOf(e) != tc.shown {
+			t.Errorf("deploying independently %s, rung %d: top %d, shown %q", Independence(s), tc.rung, e.Top, RungOf(e))
+		}
+		if unrated := Rate(r, s, nil); unrated.Top != tc.top {
+			t.Errorf("deploying independently %s, unrated: top %d", Independence(s), unrated.Top)
+		}
+	}
+}
+
 func TestTheDiagramDrawsTheSystemOnlyWhenAPartyIsInsideIt(t *testing.T) {
 	vendor := seam("http:stripe/payments", "stripe", registry.Public)
 	vendor.Provider.External = true
@@ -122,7 +148,7 @@ func TestARatedRegisterListsGapsFirstAndCountsEachRung(t *testing.T) {
 	for _, want := range []string{
 		"| Seam | Kind | Provider | Consumers | Audience | Contract | Deploys independently | Test world | Rung | Gaps |\n",
 		"| `event:backend/quotes` | event | backend (in this repo) | billing | internal | asyncapi.yaml (owned by backend) | no | " +
-			"consumer: quote.pact.test.ts, in the gate, with Pact; provider: TestQuotes, in the ci | 4 of 6 | the provider isn't verified |\n",
+			"consumer: quote.pact.test.ts, in the gate, with Pact; provider: TestQuotes, in the ci | 4 of 5 | the provider isn't verified |\n",
 		"| `table:_/quotes` | table | no single owner | backend (external, in this repo) | internal | none | not known | — | not rated | — |\n",
 		"| `http:backend/api` | http | backend | ",
 		"| 1 of 6 | no contract; no compatibility check |\n",

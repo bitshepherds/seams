@@ -69,7 +69,7 @@ func TestStatusFileSetsEachSeamsRungAndWithoutOneNoRungIsShown(t *testing.T) {
 		t.Errorf("without a status file, show printed\n%s", out)
 	}
 	out := mustSeams(t, "show", "--registry", path, "--status", statusFile(t, ratings), "event:backend/quote-accepted")
-	if !strings.Contains(out, "rung:                  3 of 6\n") || !strings.Contains(out, "the provider isn't verified") {
+	if !strings.Contains(out, "rung:                  3 of 5\n") || !strings.Contains(out, "the provider isn't verified") {
 		t.Errorf("show of one seam printed\n%s", out)
 	}
 	if out := mustSeams(t, "show", "--registry", path, "event:backend/quote-accepted"); strings.Contains(out, "rung") {
@@ -110,7 +110,7 @@ func TestShowJSONMatchesItsPublishedSchema(t *testing.T) {
 		}
 	}
 	_, out, _ := seams("show", "--json", "--registry", path, "--status", status, "http:stripe/payments")
-	if !strings.Contains(out, `"rung": 0`) || !strings.Contains(out, `"no contract"`) {
+	if !strings.Contains(out, `"rung": 0`) || !strings.Contains(out, `"top": 6`) || !strings.Contains(out, `"no contract"`) {
 		t.Errorf("show --json printed %s", out)
 	}
 }

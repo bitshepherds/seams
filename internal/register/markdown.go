@@ -259,10 +259,11 @@ func TestWorld(s registry.Seam) []string {
 	return tests
 }
 
-// RungOf is the entry's rung of the ladder's six, or that it isn't rated.
+// RungOf is the entry's rung of the seam's top, or that it isn't rated. A
+// rung above the top is shown as given: the rating isn't seams' to judge.
 func RungOf(e Entry) string {
 	if e.Rung == nil {
 		return "not rated"
 	}
-	return fmt.Sprintf("%d of %d", *e.Rung, Top)
+	return fmt.Sprintf("%d of %d", *e.Rung, e.Top)
 }
