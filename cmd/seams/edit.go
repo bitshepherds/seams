@@ -33,7 +33,7 @@ type details struct {
 
 func (d *details) on(fs *flag.FlagSet) {
 	fs.StringVar(&d.audience, "audience", "", "internal, with its consumers named, or public")
-	fs.StringVar(&d.contract, "contract", "", "where the contract lives: a path in the repo, or a URL (a moved contract keeps its owner)")
+	fs.StringVar(&d.contract, "contract", "", "where the contract lives: a path in the repo, or a URL")
 	fs.StringVar(&d.owner, "owner", "", "who owns the contract")
 	fs.StringVar(&d.independent, "deploys-independently", "", "true or false: whether the sides deploy separately")
 	fs.Var(&d.external, "external", "a party outside the system, such as a vendor (repeatable)")
@@ -222,6 +222,8 @@ func update(c *cli, args []string) int {
 	fs.Var(&adding, "add-consumer", "a consumer to add (repeatable)")
 	fs.Var(&removing, "remove-consumer", "a consumer to remove (repeatable)")
 	d.on(fs)
+	// Only update moves a contract; add writes a new seam and keeps nothing.
+	fs.Lookup("contract").Usage += " (a moved contract keeps its owner)"
 	if !c.parse(fs, args, 1) {
 		return 2
 	}
