@@ -87,7 +87,7 @@ func TestTheDiagramDrawsTheSystemOnlyWhenAPartyIsInsideIt(t *testing.T) {
 func TestARatedRegisterListsGapsFirstAndCountsEachRung(t *testing.T) {
 	no := false
 	event := seam("event:backend/quotes", "backend", registry.Internal, registry.Party{Name: "billing"})
-	event.Provider.InRepo = true
+	event.Provider.InRepo = registry.Yes()
 	event.Contract = &registry.Contract{Location: "asyncapi.yaml", Owner: "backend"}
 	event.DeploysIndependently = &no
 	event.TestWorld = []registry.ContractTest{
@@ -97,7 +97,7 @@ func TestARatedRegisterListsGapsFirstAndCountsEachRung(t *testing.T) {
 	r := &registry.Registry{Seams: []registry.Seam{
 		event,
 		seam("http:backend/api", "backend", registry.Public),
-		seam("table:_/quotes", "", registry.Internal, registry.Party{Name: "backend", External: true, InRepo: true}),
+		seam("table:_/quotes", "", registry.Internal, registry.Party{Name: "backend", External: true, InRepo: registry.Yes()}),
 	}}
 	st := &Status{Seams: map[string]Rating{
 		"event:backend/quotes": {Rung: 4, Gaps: []string{"the provider isn't verified"}},
@@ -192,6 +192,20 @@ func TestAPartyExternalInOneSeamIsOutsideTheSystemInAll(t *testing.T) {
 		if !e.CrossesOut {
 			t.Errorf("%s doesn't cross out of the system", e.Seam.ID)
 		}
+	}
+}
+
+func TestAPartyNotInThisRepoIsDrawnLikeOneNotRecorded(t *testing.T) {
+	tool := seam("cli:tool/registry", "tool", registry.Internal, registry.Party{Name: "app", InRepo: registry.Yes()})
+	tool.Provider.InRepo = registry.No()
+	unrecorded := tool
+	unrecorded.Provider = &registry.Party{Name: "tool"}
+	if got, want := Markdown(Build(&registry.Registry{Seams: []registry.Seam{tool}}, nil), nil, false),
+		Markdown(Build(&registry.Registry{Seams: []registry.Seam{unrecorded}}, nil), nil, false); got != want {
+		t.Errorf("a provider not in this repo is drawn as\n%s\nnot as\n%s", got, want)
+	}
+	if got := ProviderName(tool); got != "tool" {
+		t.Errorf("a provider not in this repo is named %q", got)
 	}
 }
 

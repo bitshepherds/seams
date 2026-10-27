@@ -41,7 +41,7 @@ func TestAddRegistersASeamWithItsIDsProviderByDefault(t *testing.T) {
 		t.Errorf("add printed %q", out)
 	}
 	s, _ := mustLoad(t, path).Find("event:backend/quote-accepted")
-	if s.Provider.Name != "backend" || !s.Provider.InRepo || len(s.Consumers) != 2 || s.Contract.Owner != "backend-team" || !*s.DeploysIndependently {
+	if s.Provider.Name != "backend" || !s.Provider.IsInRepo() || len(s.Consumers) != 2 || s.Contract.Owner != "backend-team" || !*s.DeploysIndependently {
 		t.Fatalf("registered %+v", s)
 	}
 }
@@ -209,6 +209,48 @@ func TestEditingCommandsFailOnARegistryTheyCannotReadOrWrite(t *testing.T) {
 	} {
 		if code, _, _ := seams(args...); code != 1 {
 			t.Errorf("seams %v = %d", args, code)
+		}
+	}
+}
+
+func TestAPartyIsRecordedAsInOrNotInThisRepo(t *testing.T) {
+	path := emptyRegistry(t)
+	mustSeams(t, "add", "--registry", path, "event:backend/quote-accepted", "--consumer", "billing,mailer",
+		"--not-in-repo", "backend", "--in-repo", "billing")
+	s, _ := mustLoad(t, path).Find("event:backend/quote-accepted")
+	if p := s.Provider; p.InRepo == nil || *p.InRepo {
+		t.Fatalf("the provider is %+v", p)
+	}
+	if !s.Consumers[0].IsInRepo() || s.Consumers[1].InRepo != nil {
+		t.Fatalf("the consumers are %+v", s.Consumers)
+	}
+	// Each flag replaces what the party had, and leaves the others be.
+	mustSeams(t, "update", "--registry", path, "event:backend/quote-accepted", "--in-repo", "backend", "--not-in-repo", "billing")
+	s, _ = mustLoad(t, path).Find("event:backend/quote-accepted")
+	if !s.Provider.IsInRepo() || s.Consumers[0].InRepo == nil || *s.Consumers[0].InRepo || s.Consumers[1].InRepo != nil {
+		t.Fatalf("updated to %+v and %+v", *s.Provider, s.Consumers)
+	}
+}
+
+func TestInRepoFlagsMustNameAPartyOnTheSeamOnce(t *testing.T) {
+	path := emptyRegistry(t)
+	mustSeams(t, "add", "--registry", path, "http:backend/quotes", "--consumer", "web")
+	before, err := os.ReadFile(path) //nolint:gosec // the test's own file
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, args := range [][]string{
+		{"add", "http:backend/invoices", "--consumer", "web", "--in-repo", "web", "--not-in-repo", "web"},
+		{"add", "http:backend/invoices", "--consumer", "web", "--in-repo", "nobody"},
+		{"update", "http:backend/quotes", "--not-in-repo", "nobody"},
+		{"update", "http:backend/quotes", "--add-consumer", "app", "--in-repo", "app", "--not-in-repo", "app"},
+	} {
+		code, _, errs := seams(append(args, "--registry", path)...)
+		if party := args[len(args)-1]; code != 1 || !strings.Contains(errs, party) {
+			t.Errorf("seams %s = %d, %q", strings.Join(args, " "), code, errs)
+		}
+		if after, _ := os.ReadFile(path); string(after) != string(before) { //nolint:gosec // the test's own file
+			t.Errorf("seams %s changed the registry", strings.Join(args, " "))
 		}
 	}
 }

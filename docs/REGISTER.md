@@ -22,7 +22,8 @@ seams render --check              # write nothing; exit 1 if docs/SEAMS.md is ou
 ## What each seam shows
 
 Its id and kind, its provider and consumers, marked when they're external
-or in this repo, and its audience. Where its contract lives and who owns
+or in this repo, and its audience. A party recorded as not in this repo is
+shown like one with no record either way. Where its contract lives and who owns
 it, whether its sides deploy independently, and its test world: each
 contract test, its side, the tier it runs in, and the tool that runs it
 (`--tool` on `seams add` or `update`, which names the tool for the `--test`
