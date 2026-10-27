@@ -52,7 +52,11 @@ func (d *details) apply(s *registry.Seam) error {
 		s.Audience = d.audience
 	}
 	if d.contract != "" {
-		s.Contract = &registry.Contract{Location: d.contract}
+		// Moving a contract keeps its owner, unless --owner names a new one.
+		if s.Contract == nil {
+			s.Contract = &registry.Contract{}
+		}
+		s.Contract.Location = d.contract
 	}
 	if d.owner != "" {
 		if s.Contract == nil {
@@ -218,6 +222,8 @@ func update(c *cli, args []string) int {
 	fs.Var(&adding, "add-consumer", "a consumer to add (repeatable)")
 	fs.Var(&removing, "remove-consumer", "a consumer to remove (repeatable)")
 	d.on(fs)
+	// Only update moves a contract; add writes a new seam and keeps nothing.
+	fs.Lookup("contract").Usage += " (a moved contract keeps its owner)"
 	if !c.parse(fs, args, 1) {
 		return 2
 	}

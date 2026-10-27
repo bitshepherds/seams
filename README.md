@@ -66,6 +66,9 @@ each party's record as it is, whatever else it changes. Tools read it as
 `inRepo` in `seams list --json`: `true`, `false`, or left out when not
 recorded.
 
+`seams update --contract <location>` moves a seam's contract and keeps its
+owner. Give `--owner` with it to name a new owner.
+
 ## For tools
 
 Every command takes `--json`, and its output matches a published JSON

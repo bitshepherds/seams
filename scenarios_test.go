@@ -47,6 +47,7 @@ func TestScenarios(t *testing.T) {
 	thenSteps(suite, bin)
 	registerSteps(suite)
 	inRepoSteps(suite, bin)
+	contractSteps(suite)
 	suite.Run()
 }
 
@@ -160,6 +161,44 @@ func inRepoSteps(suite *gobdd.Suite, bin string) {
 	})
 	suite.AddStep(`it fails, naming (\S+), and the registry is unchanged`, func(t gobdd.StepTest, ctx gobdd.Context, party string) {
 		refused(t, ctx, party)
+	})
+}
+
+// contractSteps are for a seam's contract: where it lives, and who owns it.
+func contractSteps(suite *gobdd.Suite) {
+	suite.AddStep(`a registry whose seam (\S+) has the contract (\S+), owned by (\S+)`, func(t gobdd.StepTest, ctx gobdd.Context, id, location, owner string) {
+		provider := strings.SplitN(strings.SplitN(id, ":", 2)[1], "/", 2)[0]
+		writeRegistry(t, ctx, `{"id": "`+id+`", "provider": {"name": "`+provider+`"}, "consumers": [{"name": "app"}], "audience": "internal",
+			"contract": {"location": "`+location+`", "owner": "`+owner+`"}}`)
+	})
+	suite.AddStep(`the registry records the contract of (\S+) at (\S+), owned by (\S+)`, func(t gobdd.StepTest, ctx gobdd.Context, id, location, owner string) {
+		if code, _ := ctx.GetInt("code"); code != 0 {
+			t.Fatalf("seams failed: %s", get(t, ctx, "stderr"))
+		}
+		data, err := os.ReadFile(registryPath(t, ctx))
+		if err != nil {
+			t.Fatal(err)
+		}
+		type contract struct{ Location, Owner string }
+		var doc struct {
+			Seams []struct {
+				ID       string    `json:"id"`
+				Contract *contract `json:"contract"`
+			} `json:"seams"`
+		}
+		if err := json.Unmarshal(data, &doc); err != nil {
+			t.Fatalf("%v\n%s", err, data)
+		}
+		want := contract{location, owner}
+		for _, s := range doc.Seams {
+			if s.ID == id {
+				if s.Contract == nil || *s.Contract != want {
+					t.Errorf("the contract of %s is %+v, not %+v", id, s.Contract, want)
+				}
+				return
+			}
+		}
+		t.Errorf("no seam %s:\n%s", id, data)
 	})
 }
 

@@ -232,6 +232,16 @@ func TestAPartyIsRecordedAsInOrNotInThisRepo(t *testing.T) {
 	}
 }
 
+func TestOnlyUpdatesHelpSaysAMovedContractKeepsItsOwner(t *testing.T) {
+	const note = "a moved contract keeps its owner"
+	if _, _, errs := seams("add", "-h"); strings.Contains(errs, note) {
+		t.Errorf("seams add -h promises what add doesn't do: %q", errs)
+	}
+	if _, _, errs := seams("update", "-h"); !strings.Contains(errs, note) {
+		t.Errorf("seams update -h doesn't say a moved contract keeps its owner: %q", errs)
+	}
+}
+
 func TestInRepoFlagsMustNameAPartyOnTheSeamOnce(t *testing.T) {
 	path := emptyRegistry(t)
 	mustSeams(t, "add", "--registry", path, "http:backend/quotes", "--consumer", "web")
