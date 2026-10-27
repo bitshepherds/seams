@@ -49,7 +49,7 @@ rungs are:
 | 3 | each change checked for compatibility against trunk and the last release |
 | 4 | consumer tests against the contract |
 | 5 | the provider verified against it |
-| 6 | a deploy gate, where the sides deploy separately |
+| 6 | a deploy gate, where the sides deploy separately and the provider isn't an outside vendor |
 
 A seam's top is the highest rung it can reach. Two kinds of seam top out at
 rung 5, since a deploy gate has nothing to guard, so at their top they read

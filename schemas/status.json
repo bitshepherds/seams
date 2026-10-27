@@ -29,7 +29,7 @@
       "type": "integer",
       "minimum": 0,
       "maximum": 6,
-      "description": "The highest rung the seam has reached: 0, none; 1, the seam, its parties and audience are known; 2, a versioned, linted contract exists; 3, each change is checked for compatibility against trunk and the last release; 4, the consumer tests against the contract; 5, the provider is verified against it; 6, a deploy gate exists where the sides deploy separately."
+      "description": "The highest rung the seam has reached: 0, none; 1, the seam, its parties and audience are known; 2, a versioned, linted contract exists; 3, each change is checked for compatibility against trunk and the last release; 4, the consumer tests against the contract; 5, the provider is verified against it; 6, a deploy gate exists where the sides deploy separately and the provider is not an outside vendor."
     },
     "gaps": { "type": "array", "items": { "type": "string" }, "description": "What the seam lacks to climb, most pressing first." }
   }
