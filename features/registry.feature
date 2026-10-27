@@ -56,3 +56,13 @@ Feature: seams keeps a registry of a repo's seams
     Given a registry whose seam cli:tool/registry has a provider not in this repo
     When a tool runs seams list --json
     Then it gets the list as JSON matching the published schema, with tool not in this repo
+
+  Scenario: Moving a contract keeps its owner
+    Given a registry whose seam cli:tool/registry has the contract schemas/1.0.0, owned by tool
+    When a developer runs seams update cli:tool/registry --contract schemas/1.1.0
+    Then the registry records the contract of cli:tool/registry at schemas/1.1.0, owned by tool
+
+  Scenario: Moving a contract with a new owner sets both
+    Given a registry whose seam cli:tool/registry has the contract schemas/1.0.0, owned by tool
+    When a developer runs seams update cli:tool/registry --contract schemas/1.1.0 --owner app
+    Then the registry records the contract of cli:tool/registry at schemas/1.1.0, owned by app

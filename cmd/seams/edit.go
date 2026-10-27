@@ -52,7 +52,11 @@ func (d *details) apply(s *registry.Seam) error {
 		s.Audience = d.audience
 	}
 	if d.contract != "" {
-		s.Contract = &registry.Contract{Location: d.contract}
+		// Moving a contract keeps its owner, unless --owner names a new one.
+		if s.Contract == nil {
+			s.Contract = &registry.Contract{}
+		}
+		s.Contract.Location = d.contract
 	}
 	if d.owner != "" {
 		if s.Contract == nil {
