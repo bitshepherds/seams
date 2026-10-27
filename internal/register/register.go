@@ -20,9 +20,13 @@ import (
 const Top = 6
 
 // TopOf is the highest rung the seam can reach: one below Top when its
-// sides deploy together, since a deploy gate between them has nothing to
-// guard, and Top when they deploy apart or no one has said.
+// sides deploy together, or its provider is an outside vendor, since a
+// deploy gate has nothing to guard (none of our deploys can hold a vendor's
+// release back), and Top otherwise.
 func TopOf(s registry.Seam) int {
+	if s.Provider != nil && s.Provider.External {
+		return Top - 1
+	}
 	if s.DeploysIndependently != nil && !*s.DeploysIndependently {
 		return Top - 1
 	}

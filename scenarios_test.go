@@ -86,7 +86,7 @@ func registerSteps(suite *gobdd.Suite) {
 	})
 	suite.AddStep(`the uncovered seam is listed first, and each seam shows its rung`, func(t gobdd.StepTest, ctx gobdd.Context) {
 		out := get(t, ctx, "stdout")
-		if !strings.HasPrefix(out, "http:stripe/payments\nrung:                  0 of 6\n") {
+		if !strings.HasPrefix(out, "http:stripe/payments\nrung:                  0 of 5\n") {
 			t.Errorf("seams show printed\n%s", out)
 		}
 		if strings.Count(out, "\nrung: ") != 3 {
@@ -112,18 +112,13 @@ func registerSteps(suite *gobdd.Suite) {
 }
 
 // topSteps are for each seam's top rung, which whether its sides deploy
-// apart sets.
+// apart, and whether its provider is an outside vendor, set.
 func topSteps(suite *gobdd.Suite, bin string) {
 	suite.AddStep(`a registry whose seam (\S+) deploys independently: (true|false|not known), and a status file that rates it (\d)`, func(t gobdd.StepTest, ctx gobdd.Context, id, independently, rung string) {
-		deploys := ""
-		if independently != "not known" {
-			deploys = `, "deploysIndependently": ` + independently
-		}
-		writeRegistry(t, ctx, `{"id": "`+id+`", "provider": {"name": "backend"}, "consumers": [{"name": "web"}], "audience": "internal"`+deploys+`}`)
-		status := `{"schema": "` + schemas.ID("status") + `", "seams": {"` + id + `": {"rung": ` + rung + `}}}`
-		if err := os.WriteFile(filepath.Join(get(t, ctx, "dir"), "status.json"), []byte(status), 0o600); err != nil {
-			t.Fatal(err)
-		}
+		writeRatedSeam(t, ctx, id, "", independently, rung)
+	})
+	suite.AddStep(`a registry whose seam (\S+) has an external (provider|consumer), deploys independently: (true|false|not known), and a status file that rates it (\d)`, func(t gobdd.StepTest, ctx gobdd.Context, id, external, independently, rung string) {
+		writeRatedSeam(t, ctx, id, external, independently, rung)
 	})
 	suite.AddStep(`docs/SEAMS.md shows (\S+) at (\d of \d)`, func(t gobdd.StepTest, ctx gobdd.Context, id, rung string) {
 		if code, _ := ctx.GetInt("code"); code != 0 {
@@ -160,6 +155,28 @@ func topSteps(suite *gobdd.Suite, bin string) {
 			}
 		}
 	})
+}
+
+// writeRatedSeam writes a registry of one seam, with its external party
+// ("provider", "consumer" or none) and whether its sides deploy apart, and a
+// status file that rates it.
+func writeRatedSeam(t gobdd.StepTest, ctx gobdd.Context, id, external, independently, rung string) {
+	provider, consumer := `{"name": "backend"}`, `{"name": "web"}`
+	switch external {
+	case "provider":
+		provider = `{"name": "stripe", "external": true}`
+	case "consumer":
+		consumer = `{"name": "bank", "external": true}`
+	}
+	deploys := ""
+	if independently != "not known" {
+		deploys = `, "deploysIndependently": ` + independently
+	}
+	writeRegistry(t, ctx, `{"id": "`+id+`", "provider": `+provider+`, "consumers": [`+consumer+`], "audience": "internal"`+deploys+`}`)
+	status := `{"schema": "` + schemas.ID("status") + `", "seams": {"` + id + `": {"rung": ` + rung + `}}}`
+	if err := os.WriteFile(filepath.Join(get(t, ctx, "dir"), "status.json"), []byte(status), 0o600); err != nil {
+		t.Fatal(err)
+	}
 }
 
 // registerSeams are two internal seams and a vendor's, which crosses out.

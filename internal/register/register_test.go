@@ -98,6 +98,41 @@ func TestASeamWhoseSidesDeployTogetherTopsOutAtRung5(t *testing.T) {
 	}
 }
 
+func TestASeamWhoseProviderIsAnOutsideVendorTopsOutAtRung5(t *testing.T) {
+	yes, no := true, false
+	for _, tc := range []struct {
+		vendor        string
+		independently *bool
+		top           int
+	}{
+		{"provider", nil, 5},
+		{"provider", &yes, 5},
+		{"provider", &no, 5},
+		{"consumer", &yes, 6},
+		{"consumer", nil, 6},
+	} {
+		s := seam("http:stripe/payments", "stripe", registry.Public, registry.Party{Name: "backend"})
+		if tc.vendor == "provider" {
+			s.Provider.External = true
+		} else {
+			s.Consumers[0].External = true
+		}
+		s.DeploysIndependently = tc.independently
+		if top := TopOf(s); top != tc.top {
+			t.Errorf("external %s, deploying independently %s: top %d, want %d", tc.vendor, Independence(s), top, tc.top)
+		}
+	}
+	// It's the seam's own provider that counts, not a party of the same
+	// name marked external on another seam.
+	vendor := seam("http:stripe/payments", "stripe", registry.Public, registry.Party{Name: "backend"})
+	vendor.Provider.External = true
+	other := seam("http:stripe/refunds", "stripe", registry.Public, registry.Party{Name: "backend"})
+	r := &registry.Registry{Seams: []registry.Seam{vendor, other}}
+	if e := Rate(r, other, nil); e.Top != Top {
+		t.Errorf("a seam whose provider is marked external only on another seam: top %d", e.Top)
+	}
+}
+
 func TestTheDiagramDrawsTheSystemOnlyWhenAPartyIsInsideIt(t *testing.T) {
 	vendor := seam("http:stripe/payments", "stripe", registry.Public)
 	vendor.Provider.External = true

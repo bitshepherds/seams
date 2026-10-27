@@ -34,3 +34,21 @@ Feature: seams draws the register of a repo's seams
     Given a registry whose seam http:backend/quotes deploys independently: false, and a status file that rates it 6
     When a developer runs seams render --status status.json
     Then docs/SEAMS.md shows http:backend/quotes at 6 of 5
+
+  Scenario: A seam whose provider is an outside vendor tops out at rung 5
+    Given a registry whose seam http:stripe/payments has an external provider, deploys independently: not known, and a status file that rates it 5
+    When a developer runs seams render --status status.json
+    Then docs/SEAMS.md shows http:stripe/payments at 5 of 5
+    And seams show --json gives http:stripe/payments a top of 5
+
+  Scenario: A vendor's seam tops out at rung 5 even when its sides deploy apart
+    Given a registry whose seam http:stripe/payments has an external provider, deploys independently: true, and a status file that rates it 5
+    When a developer runs seams render --status status.json
+    Then docs/SEAMS.md shows http:stripe/payments at 5 of 5
+    And seams show --json gives http:stripe/payments a top of 5
+
+  Scenario: A seam whose consumer is an outside vendor tops out at rung 6
+    Given a registry whose seam http:backend/quotes has an external consumer, deploys independently: true, and a status file that rates it 5
+    When a developer runs seams render --status status.json
+    Then docs/SEAMS.md shows http:backend/quotes at 5 of 6
+    And seams show --json gives http:backend/quotes a top of 6

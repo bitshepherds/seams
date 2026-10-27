@@ -47,7 +47,7 @@ func TestShowListsEachSeamWithItsCharacteristicsAndRungGapsFirst(t *testing.T) {
 	}
 	for _, want := range []string{
 		"rung:                  not rated\n",
-		"rung:                  0 of 6\ngaps:                  no contract; nothing tests it\n",
+		"rung:                  0 of 5\ngaps:                  no contract; nothing tests it\n",
 		"kind:                  event\n",
 		"provider:              backend (in this repo)\n",
 		"boundary:              crosses out of the system\n",
@@ -110,7 +110,7 @@ func TestShowJSONMatchesItsPublishedSchema(t *testing.T) {
 		}
 	}
 	_, out, _ := seams("show", "--json", "--registry", path, "--status", status, "http:stripe/payments")
-	if !strings.Contains(out, `"rung": 0`) || !strings.Contains(out, `"top": 6`) || !strings.Contains(out, `"no contract"`) {
+	if !strings.Contains(out, `"rung": 0`) || !strings.Contains(out, `"top": 5`) || !strings.Contains(out, `"no contract"`) {
 		t.Errorf("show --json printed %s", out)
 	}
 }
