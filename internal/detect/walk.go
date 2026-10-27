@@ -6,6 +6,8 @@ import (
 	"path"
 	"sort"
 	"strings"
+
+	"github.com/bitshepherds/sheepdog-seams/internal/registry"
 )
 
 // scan is one detection's state: the repo's files and components, and the
@@ -219,14 +221,15 @@ func (s *scan) named(name string) (string, bool) {
 	return "", false
 }
 
-// inRepo says whether a party is one of the repo's components.
-func (s *scan) inRepo(party string) bool {
+// inRepo records a party that is one of the repo's components as in this
+// repo, and leaves any other unrecorded: detection never says a party isn't.
+func (s *scan) inRepo(party string) *bool {
 	for _, c := range s.comps {
 		if c.Name == party {
-			return true
+			return registry.Yes()
 		}
 	}
-	return false
+	return nil
 }
 
 // filesNamed lists the files whose name matches a glob, such as *.tf.

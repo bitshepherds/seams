@@ -213,7 +213,7 @@ func PartyName(p registry.Party) string {
 	if p.External {
 		marks = append(marks, "external")
 	}
-	if p.InRepo {
+	if p.IsInRepo() {
 		marks = append(marks, "in this repo")
 	}
 	if len(marks) == 0 {

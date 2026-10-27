@@ -2,11 +2,13 @@ package sheepdogseams
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -44,6 +46,7 @@ func TestScenarios(t *testing.T) {
 	whenSteps(suite, bin)
 	thenSteps(suite, bin)
 	registerSteps(suite)
+	inRepoSteps(suite, bin)
 	suite.Run()
 }
 
@@ -110,6 +113,91 @@ func registerSteps(suite *gobdd.Suite) {
 const registerSeams = `{"id": "event:backend/quote-accepted", "provider": {"name": "backend"}, "consumers": [{"name": "billing"}], "audience": "internal"},
 	{"id": "http:stripe/payments", "provider": {"name": "stripe", "external": true}, "consumers": [{"name": "backend"}], "audience": "public"},
 	{"id": "http:backend/quotes", "provider": {"name": "backend"}, "consumers": [{"name": "web"}], "audience": "internal"}`
+
+// inRepoSteps are for parties recorded as in this repo, or as not in it.
+func inRepoSteps(suite *gobdd.Suite, bin string) {
+	suite.AddStep(`a registry whose seam (\S+) has a provider (not in|in) this repo`, func(t gobdd.StepTest, ctx gobdd.Context, id, where string) {
+		provider := strings.SplitN(strings.SplitN(id, ":", 2)[1], "/", 2)[0]
+		in := strconv.FormatBool(where == "in")
+		writeRegistry(t, ctx, `{"id": "`+id+`", "provider": {"name": "`+provider+`", "inRepo": `+in+`}, "consumers": [{"name": "app"}], "audience": "internal"}`)
+	})
+	suite.AddStep(`the registry records (\S+) on (\S+) as (not in|in) this repo`, func(t gobdd.StepTest, ctx gobdd.Context, party, id, where string) {
+		if code, _ := ctx.GetInt("code"); code != 0 {
+			t.Fatalf("seams failed: %s", get(t, ctx, "stderr"))
+		}
+		data, err := os.ReadFile(registryPath(t, ctx))
+		if err != nil {
+			t.Fatal(err)
+		}
+		checkInRepo(t, data, id, party, where == "in")
+	})
+	suite.AddStep(`seams list --json reports (\S+) on (\S+) as (not in|in) this repo`, func(t gobdd.StepTest, ctx gobdd.Context, party, id, where string) {
+		runSeams(t, ctx, bin, "list", "--json")
+		checkInRepo(t, []byte(get(t, ctx, "stdout")), id, party, where == "in")
+	})
+	suite.AddStep(`it gets the list as JSON matching the published schema, with (\S+) not in this repo`, func(t gobdd.StepTest, ctx gobdd.Context, party string) {
+		out := []byte(get(t, ctx, "stdout"))
+		if err := schemas.Validate("list", out); err != nil {
+			t.Errorf("%v\n%s", err, out)
+		}
+		if !bytes.Contains(out, []byte(`"inRepo": false`)) {
+			t.Errorf("the list doesn't say %s isn't in this repo:\n%s", party, out)
+		}
+	})
+	refused := func(t gobdd.StepTest, ctx gobdd.Context, want string) {
+		if code, _ := ctx.GetInt("code"); code == 0 {
+			t.Fatal("seams succeeded")
+		}
+		if errs := get(t, ctx, "stderr"); !strings.Contains(errs, want) {
+			t.Errorf("seams said %q, without %q", errs, want)
+		}
+		if data, err := os.ReadFile(registryPath(t, ctx)); err != nil || string(data) != get(t, ctx, "registry") {
+			t.Errorf("the registry changed: %v\n%s", err, data)
+		}
+	}
+	suite.AddStep(`it fails, saying (\S+) can't be both in this repo and not, and the registry is unchanged`, func(t gobdd.StepTest, ctx gobdd.Context, party string) {
+		refused(t, ctx, party+" can't be both in this repo and not")
+	})
+	suite.AddStep(`it fails, naming (\S+), and the registry is unchanged`, func(t gobdd.StepTest, ctx gobdd.Context, party string) {
+		refused(t, ctx, party)
+	})
+}
+
+// checkInRepo checks that a document's seams, the registry's or a list's,
+// record the party on the seam as in this repo or not: its inRepo is there,
+// and true or false, not left out.
+func checkInRepo(t gobdd.StepTest, data []byte, id, party string, want bool) {
+	var doc struct {
+		Seams []struct {
+			ID        string            `json:"id"`
+			Provider  json.RawMessage   `json:"provider"`
+			Consumers []json.RawMessage `json:"consumers"`
+		} `json:"seams"`
+	}
+	if err := json.Unmarshal(data, &doc); err != nil {
+		t.Fatalf("%v\n%s", err, data)
+	}
+	for _, s := range doc.Seams {
+		if s.ID != id {
+			continue
+		}
+		for _, raw := range append([]json.RawMessage{s.Provider}, s.Consumers...) {
+			var p struct {
+				Name   string `json:"name"`
+				InRepo *bool  `json:"inRepo"`
+			}
+			_ = json.Unmarshal(raw, &p) // a null provider is no party
+			if p.Name != party {
+				continue
+			}
+			if p.InRepo == nil || *p.InRepo != want {
+				t.Errorf("%s on %s is %s, not inRepo %t", party, id, raw, want)
+			}
+			return
+		}
+	}
+	t.Errorf("no party %s on %s:\n%s", party, id, data)
+}
 
 func whenSteps(suite *gobdd.Suite, bin string) {
 	suite.AddStep(`a developer adds the seam (\S+), provided by (\S+) and consumed by (\S+)`, func(t gobdd.StepTest, ctx gobdd.Context, id, provider, consumer string) {
@@ -212,7 +300,7 @@ func copyFixture(t gobdd.StepTest, ctx gobdd.Context, name string) {
 // writeRegistry writes the scenario's registry, at the default path, with
 // the seams given as JSON.
 func writeRegistry(t gobdd.StepTest, ctx gobdd.Context, seams string) {
-	path := filepath.Join(get(t, ctx, "dir"), ".sheepdog", "seams", "registry.json")
+	path := registryPath(t, ctx)
 	doc := `{"schema": "` + schemas.ID("registry") + `", "seams": [` + seams + `]}`
 	if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
 		t.Fatal(err)
@@ -220,6 +308,12 @@ func writeRegistry(t gobdd.StepTest, ctx gobdd.Context, seams string) {
 	if err := os.WriteFile(path, []byte(doc), 0o600); err != nil {
 		t.Fatal(err)
 	}
+	ctx.Set("registry", doc)
+}
+
+// registryPath is the scenario's registry, at the default path.
+func registryPath(t gobdd.StepTest, ctx gobdd.Context) string {
+	return filepath.Join(get(t, ctx, "dir"), ".sheepdog", "seams", "registry.json")
 }
 
 // runSeams runs seams in the scenario's directory, keeping its exit code and

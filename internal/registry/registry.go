@@ -43,8 +43,19 @@ type Seam struct {
 type Party struct {
 	Name     string `json:"name"`
 	External bool   `json:"external,omitempty"`
-	InRepo   bool   `json:"inRepo,omitempty"`
+	// InRepo says whether the party's code is in this repo: true, false, or
+	// nil when nobody has recorded it.
+	InRepo *bool `json:"inRepo,omitempty"`
 }
+
+// Yes is an InRepo of true: the party's code is in this repo.
+func Yes() *bool { v := true; return &v }
+
+// No is an InRepo of false: the party's code is in another repo.
+func No() *bool { v := false; return &v }
+
+// IsInRepo says whether the party is recorded as in this repo.
+func (p Party) IsInRepo() bool { return p.InRepo != nil && *p.InRepo }
 
 // Contract says where a seam's contract lives, and who owns it.
 type Contract struct {

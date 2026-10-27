@@ -46,7 +46,7 @@ func TestUpdateChangesASeamFoundByAFormerIDAndUndoesAChangeWithProblems(t *testi
 }
 
 func TestRenameKeepsTheOldIDAndMovesTheProviderWithTheID(t *testing.T) {
-	s := seam("table:backend/quotes", &Party{Name: "backend", InRepo: true}, "reports")
+	s := seam("table:backend/quotes", &Party{Name: "backend", InRepo: Yes()}, "reports")
 	Rename(&s, "table:_/quotes")
 	if s.Provider != nil || s.Was[0] != "table:backend/quotes" {
 		t.Fatalf("to no owner: %+v", s)

@@ -163,8 +163,9 @@ func TestRejectedCandidateWithAMalformedIDIsRefused(t *testing.T) {
 func TestRegistrySavesAndLoadsAsItWas(t *testing.T) {
 	path := filepath.Join(t.TempDir(), ".sheepdog", "seams", "registry.json")
 	independent := true
-	s := seam("http:stripe/payments", &Party{Name: "stripe", External: true}, "checkout")
-	s.Consumers[0].InRepo = true
+	s := seam("http:stripe/payments", &Party{Name: "stripe", External: true}, "checkout", "ledger", "mailer")
+	s.Consumers[0].InRepo = Yes()
+	s.Consumers[1].InRepo = No()
 	s.Audience = Public
 	s.Contract = &Contract{Location: "https://docs.stripe.com/api", Owner: "stripe"}
 	s.DeploysIndependently = &independent
@@ -179,9 +180,25 @@ func TestRegistrySavesAndLoadsAsItWas(t *testing.T) {
 		t.Fatal(err)
 	}
 	g := got.Seams[0]
-	if g.ID != s.ID || !g.Provider.External || !g.Consumers[0].InRepo || g.Contract.Owner != "stripe" ||
+	if g.ID != s.ID || !g.Provider.External || g.Contract.Owner != "stripe" ||
 		!*g.DeploysIndependently || g.TestWorld[0].Tier != "gate" || got.Rejected[0].Reason != "a probe" {
 		t.Fatalf("loaded %+v", got)
+	}
+	// A party's inRepo is true, false, or not recorded, and each is kept.
+	in, out, unknown := g.Consumers[0].InRepo, g.Consumers[1].InRepo, g.Consumers[2].InRepo
+	if in == nil || !*in || out == nil || *out || unknown != nil || g.Provider.InRepo != nil {
+		t.Fatalf("loaded the parties %+v and %+v", *g.Provider, g.Consumers)
+	}
+}
+
+func TestOnlyAPartyRecordedAsInThisRepoIsInIt(t *testing.T) {
+	for _, p := range []Party{{Name: "a", InRepo: No()}, {Name: "b"}} {
+		if p.IsInRepo() {
+			t.Errorf("%+v is in this repo", p)
+		}
+	}
+	if p := (Party{Name: "c", InRepo: Yes()}); !p.IsInRepo() {
+		t.Errorf("%+v isn't in this repo", p)
 	}
 }
 

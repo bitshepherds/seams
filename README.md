@@ -46,6 +46,7 @@ Or download an archive for your platform from the GitHub releases.
 ```sh
 seams detect                    # propose the repo's seams, with evidence
 seams add http:billing/invoices --consumer web --audience internal
+seams add cli:tool/registry --consumer web --in-repo web --not-in-repo tool
 seams list                      # the registered seams, one a line
 seams show http:billing/invoices
 seams validate                  # check the registry
@@ -56,6 +57,14 @@ seams render --check            # in the gate: fail if docs/SEAMS.md is out of d
 
 A seam's id is `<kind>:<provider>/<name>`. Run `seams` with no command for
 every command, and `seams <command> -h` for its flags.
+
+`--in-repo <party>` records that a party's code is in this repo, and
+`--not-in-repo <party>` that it's in another, such as a tool the repo pins.
+Each works on `seams add` and `seams update`, for the parties of the seam
+it names. A party left unnamed has no record either way, and `seams` keeps
+each party's record as it is, whatever else it changes. Tools read it as
+`inRepo` in `seams list --json`: `true`, `false`, or left out when not
+recorded.
 
 ## For tools
 

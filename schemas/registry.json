@@ -23,7 +23,7 @@
       "properties": {
         "name": { "type": "string", "description": "A component, or a vendor: the name Pact uses for the pacticipant, where Pact is used." },
         "external": { "type": "boolean", "description": "Outside the system, such as a vendor." },
-        "inRepo": { "type": "boolean", "description": "Its code is in this repo." }
+        "inRepo": { "type": "boolean", "description": "true when its code is in this repo, false when it is in another. Left out when not recorded." }
       }
     },
     "seam": {

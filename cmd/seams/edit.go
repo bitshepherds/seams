@@ -28,7 +28,7 @@ func (n *names) Set(v string) error {
 // details are the flags that describe a seam, shared by add and update.
 type details struct {
 	audience, contract, owner, independent, tool string
-	external, inRepo, tests                      names
+	external, inRepo, notInRepo, tests           names
 }
 
 func (d *details) on(fs *flag.FlagSet) {
@@ -38,6 +38,7 @@ func (d *details) on(fs *flag.FlagSet) {
 	fs.StringVar(&d.independent, "deploys-independently", "", "true or false: whether the sides deploy separately")
 	fs.Var(&d.external, "external", "a party outside the system, such as a vendor (repeatable)")
 	fs.Var(&d.inRepo, "in-repo", "a party whose code is in this repo (repeatable)")
+	fs.Var(&d.notInRepo, "not-in-repo", "a party whose code is in another repo, such as a pinned tool (repeatable)")
 	fs.Var(&d.tests, "test", "a contract test, as <provider|consumer>:<test>:<tier> (repeatable)")
 	fs.StringVar(&d.tool, "tool", "", "the tool that runs the --test(s) given with it, such as Pact")
 }
@@ -79,7 +80,32 @@ func (d *details) apply(s *registry.Seam) error {
 	}
 	for _, p := range parties(s) {
 		p.External = p.External || slices.Contains(d.external, p.Name)
-		p.InRepo = p.InRepo || slices.Contains(d.inRepo, p.Name)
+	}
+	return d.place(s)
+}
+
+// place records each party --in-repo names as in this repo, and each
+// --not-in-repo names as not, replacing what it had. It refuses a party named
+// by both, or one the seam doesn't have, so a typo isn't ignored.
+func (d *details) place(s *registry.Seam) error {
+	for _, name := range d.inRepo {
+		if slices.Contains(d.notInRepo, name) {
+			return fmt.Errorf("%s can't be both in this repo and not: give --in-repo or --not-in-repo, not both", name)
+		}
+	}
+	ps := parties(s)
+	for _, name := range slices.Concat(d.inRepo, d.notInRepo) {
+		if !slices.ContainsFunc(ps, func(p *registry.Party) bool { return p.Name == name }) {
+			return fmt.Errorf("%s isn't a party to %s, so it can't be recorded as in this repo or not", name, s.ID)
+		}
+	}
+	for _, p := range ps {
+		switch {
+		case slices.Contains(d.inRepo, p.Name):
+			p.InRepo = registry.Yes()
+		case slices.Contains(d.notInRepo, p.Name):
+			p.InRepo = registry.No()
+		}
 	}
 	return nil
 }
