@@ -14,7 +14,7 @@
     "top": {
       "type": "integer",
       "enum": [5, 6],
-      "description": "The highest rung the seam can reach, whether or not it is rated: 5 when its sides deploy together (deploysIndependently is false), since a deploy gate has nothing to guard; 6 when they deploy apart, or that isn't recorded. Always given. A rung above it is shown as the status file gives it."
+      "description": "The highest rung the seam can reach, whether or not it is rated: 5 when its sides deploy together (deploysIndependently is false), since a deploy gate has nothing to guard; 6 when they deploy apart, or that isn't recorded. Given by seams show --json for every seam, in the register and for a single seam; seams add and seams update --json, which also emit seam/v1, do not give it. A rung above it is shown as the status file gives it."
     },
     "entry": {
       "type": "object",
