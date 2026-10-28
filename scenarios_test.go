@@ -49,6 +49,7 @@ func TestScenarios(t *testing.T) {
 	topSteps(suite, bin)
 	inRepoSteps(suite, bin)
 	contractSteps(suite)
+	renameSteps(suite, bin)
 	suite.Run()
 }
 
@@ -408,6 +409,85 @@ func checkCandidates(t gobdd.StepTest, out string) {
 	}
 }
 
+// renameSteps are the scenarios of a project whose seams files are from
+// before seams was renamed, and of one with none yet.
+func renameSteps(suite *gobdd.Suite, bin string) {
+	const oldID = "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1"
+	oldRegistry := `{"schema": "` + oldID + `", "seams": []}`
+	suite.AddStep(`a project whose seams registry is in .sheepdog/seams/`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		writeFile(t, ctx, ".sheepdog/seams/registry.json", oldRegistry)
+	})
+	suite.AddStep(`a project with seams files in both .sheepdog/seams/ and .seams/`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		writeFile(t, ctx, ".sheepdog/seams/registry.json", oldRegistry)
+		writeRegistry(t, ctx, "")
+	})
+	suite.AddStep(`a project whose .seams/registry.json names the old sheepdog-seams schema`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		writeFile(t, ctx, ".seams/registry.json", oldRegistry)
+	})
+	suite.AddStep(`a project with no seams files`, func(gobdd.StepTest, gobdd.Context) {})
+	suite.AddStep(`the developer adds a seam`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		runSeams(t, ctx, bin, "add", "http:backend/quotes", "--consumer", "web")
+	})
+	suite.AddStep(`the developer lists its seams`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		runSeams(t, ctx, bin, "list")
+	})
+	suite.AddStep(`the developer validates its seams`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		runSeams(t, ctx, bin, "validate")
+	})
+	suite.AddStep(`seams refuses, and says to move the folder to .seams/ and change each file's schema id`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		refused(t, ctx, `Move them with "git mv .sheepdog/seams .seams"`,
+			"change each file's schema from https://github.com/bitshepherds/sheepdog-seams/schemas/<name>/v1 to https://github.com/bitshepherds/seams/schemas/<name>/v1.")
+	})
+	suite.AddStep(`nothing is written to .seams/`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		if _, err := os.Stat(filepath.Join(get(t, ctx, "dir"), ".seams")); !errors.Is(err, os.ErrNotExist) {
+			t.Errorf(".seams/ is there: %v", err)
+		}
+	})
+	suite.AddStep(`seams refuses, and says to merge the old folder into .seams/ by hand and delete it`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		refused(t, ctx, "merge anything you need from .sheepdog/seams/ into it by hand, then delete .sheepdog/seams/.")
+	})
+	suite.AddStep(`seams refuses, and gives the new schema id to use in its place`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		refused(t, ctx, "carries the schema id "+oldID+", from before seams was renamed. Change it to "+schemas.ID("registry")+".")
+	})
+	suite.AddStep(`the registry is written to .seams/registry.json, with the new schema id`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		if code, _ := ctx.GetInt("code"); code != 0 {
+			t.Fatalf("seams add failed: %s", get(t, ctx, "stderr"))
+		}
+		data, err := os.ReadFile(registryPath(t, ctx))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var doc struct{ Schema string }
+		if err := json.Unmarshal(data, &doc); err != nil || doc.Schema != "https://github.com/bitshepherds/seams/schemas/registry/v1" {
+			t.Errorf("the registry's schema is %q (%v)", doc.Schema, err)
+		}
+	})
+}
+
+// refused checks that seams exited 1, saying each of the phrases.
+func refused(t gobdd.StepTest, ctx gobdd.Context, phrases ...string) {
+	if code, _ := ctx.GetInt("code"); code != 1 {
+		t.Errorf("seams exited %d", code)
+	}
+	errs := get(t, ctx, "stderr")
+	for _, p := range phrases {
+		if !strings.Contains(errs, p) {
+			t.Errorf("seams said %q, without %q", errs, p)
+		}
+	}
+}
+
+// writeFile writes a file in the scenario's directory, making its folder.
+func writeFile(t gobdd.StepTest, ctx gobdd.Context, name, content string) {
+	path := filepath.Join(get(t, ctx, "dir"), name)
+	if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+}
+
 // copyFixture copies a fixture repo from testdata/ into the scenario's
 // directory.
 func copyFixture(t gobdd.StepTest, ctx gobdd.Context, name string) {
@@ -432,7 +512,7 @@ func writeRegistry(t gobdd.StepTest, ctx gobdd.Context, seams string) {
 
 // registryPath is the scenario's registry, at the default path.
 func registryPath(t gobdd.StepTest, ctx gobdd.Context) string {
-	return filepath.Join(get(t, ctx, "dir"), ".sheepdog", "seams", "registry.json")
+	return filepath.Join(get(t, ctx, "dir"), ".seams", "registry.json")
 }
 
 // runSeams runs seams in the scenario's directory, keeping its exit code and

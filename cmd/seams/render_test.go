@@ -160,7 +160,7 @@ func TestHistoryRecordsTheCountAtEachRung(t *testing.T) {
 	}
 	defer func(was func() string) { today = was }(today)
 	dir := t.TempDir()
-	history, doc := filepath.Join(dir, ".sheepdog", "seams", "history.json"), filepath.Join(dir, "SEAMS.md")
+	history, doc := filepath.Join(dir, ".seams", "history.json"), filepath.Join(dir, "SEAMS.md")
 	args := []string{"render", "--registry", registryFile(t, threeSeams), "--out", doc, "--history", history, "--record"}
 	today = func() string { return "2026-10-22" }
 	mustSeams(t, args...)
@@ -255,7 +255,7 @@ func TestRenderKeepsItsStatusFileSoCheckDrawsTheSameRegister(t *testing.T) {
 	t.Chdir(t.TempDir())
 	path := registryFile(t, threeSeams)
 	mustSeams(t, "render", "--registry", path, "--status", statusFile(t, ratings))
-	if _, err := os.Stat(".sheepdog/seams/status.json"); err != nil {
+	if _, err := os.Stat(".seams/status.json"); err != nil {
 		t.Fatal(err)
 	}
 	if code, _, errs := seams("render", "--registry", path, "--check"); code != 0 {

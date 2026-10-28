@@ -16,11 +16,11 @@ func importFrom(c *cli, args []string) int {
 	if c.args[0] != "catalog-info" {
 		return c.fail(fmt.Errorf("seams imports from catalog-info, not %q", c.args[0]))
 	}
-	data, err := os.ReadFile(*file) //nolint:gosec // the catalog's path is the user's to choose
+	r, err := c.load()
 	if err != nil {
 		return c.fail(err)
 	}
-	r, err := c.load()
+	data, err := os.ReadFile(*file) //nolint:gosec // the catalog's path is the user's to choose
 	if err != nil {
 		return c.fail(err)
 	}

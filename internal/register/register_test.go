@@ -284,3 +284,19 @@ func TestStatusNamesTheRatingsForNoSeam(t *testing.T) {
 		t.Error("saved a status file under a file")
 	}
 }
+
+func TestAStatusOrHistoryFileWithTheOldSchemaIDIsRefusedWithItsNewID(t *testing.T) {
+	dir := t.TempDir()
+	for name, load := range map[string]func(string) error{
+		"status":  func(p string) error { _, err := LoadStatus(p); return err },
+		"history": func(p string) error { _, err := LoadHistory(p); return err },
+	} {
+		path := filepath.Join(dir, name+".json")
+		if err := os.WriteFile(path, []byte(`{"schema": "`+schemas.OldAddress+name+`/v1"}`), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		if err := load(path); err == nil || !strings.Contains(err.Error(), "Change it to "+schemas.ID(name)+".") {
+			t.Errorf("an old %s schema id gave %v", name, err)
+		}
+	}
+}

@@ -66,3 +66,24 @@ Feature: seams keeps a registry of a repo's seams
     Given a registry whose seam cli:tool/registry has the contract schemas/1.0.0, owned by tool
     When a developer runs seams update cli:tool/registry --contract schemas/1.1.0 --owner app
     Then the registry records the contract of cli:tool/registry at schemas/1.1.0, owned by app
+
+  Scenario: A project's seams files are still in the old folder
+    Given a project whose seams registry is in .sheepdog/seams/
+    When the developer adds a seam
+    Then seams refuses, and says to move the folder to .seams/ and change each file's schema id
+    And nothing is written to .seams/
+
+  Scenario: A project has both the old folder and the new
+    Given a project with seams files in both .sheepdog/seams/ and .seams/
+    When the developer lists its seams
+    Then seams refuses, and says to merge the old folder into .seams/ by hand and delete it
+
+  Scenario: A registry carries the old schema id
+    Given a project whose .seams/registry.json names the old sheepdog-seams schema
+    When the developer validates its seams
+    Then seams refuses, and gives the new schema id to use in its place
+
+  Scenario: A project with no seams files yet starts in the new folder
+    Given a project with no seams files
+    When the developer adds a seam
+    Then the registry is written to .seams/registry.json, with the new schema id

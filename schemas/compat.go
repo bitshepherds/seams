@@ -14,9 +14,9 @@ import (
 // a newly required property, a dropped enum value. A break is allowed only
 // when the schema's major version rises, so Breaks returns none then.
 //
-// The schemas moved address with the repo's rename, from oldAddress to
-// newAddress, still v1. So before comparing, Breaks moves each string in
-// the old schema that starts oldAddress to newAddress, and changes nothing
+// The schemas moved address with the repo's rename, from OldAddress to
+// Address, still v1. So before comparing, Breaks moves each string in
+// the old schema that starts OldAddress to Address, and changes nothing
 // else: the move alone breaks nothing, and any other change is still judged.
 func Breaks(old, new []byte) ([]string, error) {
 	var o, n map[string]any
@@ -39,17 +39,32 @@ func Breaks(old, new []byte) ([]string, error) {
 
 // The schemas' address before and after the repo's rename.
 const (
-	oldAddress = "https://github.com/bitshepherds/sheepdog-seams/schemas/"
-	newAddress = "https://github.com/bitshepherds/seams/schemas/"
+	OldAddress = "https://github.com/bitshepherds/sheepdog-seams/schemas/"
+	Address    = "https://github.com/bitshepherds/seams/schemas/"
 )
 
+// Renamed refuses a document at path whose schema is an id from before the
+// repo's rename, naming the id to change it to. It passes anything else,
+// including what isn't JSON, for Validate to judge.
+func Renamed(path string, doc []byte) error {
+	var d struct {
+		Schema any `json:"schema"`
+	}
+	_ = json.Unmarshal(doc, &d) // what isn't JSON is Validate's to report
+	id, _ := d.Schema.(string)
+	if rest, ok := strings.CutPrefix(id, OldAddress); ok {
+		return fmt.Errorf("%s carries the schema id %s, from before seams was renamed. Change it to %s.", path, id, Address+rest) //nolint:staticcheck // a message in sentences, ending in a full stop
+	}
+	return nil
+}
+
 // moveAddress rewrites, in place, each string in a decoded schema that
-// starts oldAddress to start newAddress instead, at any depth.
+// starts OldAddress to start Address instead, at any depth.
 func moveAddress(v any) any {
 	switch v := v.(type) {
 	case string:
-		if rest, ok := strings.CutPrefix(v, oldAddress); ok {
-			return newAddress + rest
+		if rest, ok := strings.CutPrefix(v, OldAddress); ok {
+			return Address + rest
 		}
 	case map[string]any:
 		for k, sub := range v {

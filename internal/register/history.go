@@ -8,11 +8,12 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/bitshepherds/seams/internal/registry"
 	"github.com/bitshepherds/seams/schemas"
 )
 
 // DefaultHistory is where a repo keeps its register's history.
-const DefaultHistory = ".sheepdog/seams/history.json"
+const DefaultHistory = registry.Dir + "/history.json"
 
 // History is the register's count on each day it was recorded.
 type History struct {
@@ -54,6 +55,9 @@ func LoadHistory(path string) (*History, error) {
 		return &History{Schema: schemas.ID("history"), Counts: []Count{}}, nil
 	}
 	if err != nil {
+		return nil, err
+	}
+	if err := schemas.Renamed(path, data); err != nil {
 		return nil, err
 	}
 	if err := schemas.Validate("history", data); err != nil {

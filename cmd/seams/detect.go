@@ -22,6 +22,7 @@ func detectSeams(c *cli, args []string) int {
 		return 2
 	}
 	abs, _ := filepath.Abs(*root) // the working directory is known, or nothing runs
+	c.root = abs
 	if !flagSet(fs, "registry") {
 		c.registry = filepath.Join(abs, registry.DefaultPath)
 	}

@@ -44,6 +44,7 @@ var commands = map[string]command{
 type cli struct {
 	out, errs io.Writer
 	registry  string
+	root      string // the repo whose folders are checked: detect's --root, else the working directory
 	json      bool
 	args      []string // the command's positional arguments
 }
@@ -63,7 +64,7 @@ func run(args []string, out, errs io.Writer) int {
 		usage(errs)
 		return 2
 	}
-	return cmd.run(&cli{out: out, errs: errs}, args[1:])
+	return cmd.run(&cli{out: out, errs: errs, root: "."}, args[1:])
 }
 
 func usage(w io.Writer) {
@@ -131,7 +132,15 @@ func (c *cli) emit(schema string, doc map[string]any) {
 	_, _ = fmt.Fprintln(c.out, string(data))
 }
 
-func (c *cli) load() (*registry.Registry, error) { return registry.Load(c.registry) }
+// load reads the registry, once the repo's folders pass registry.CheckFolder.
+// Every command that reads or writes seams files loads first, after its
+// flags, so --help never meets the check.
+func (c *cli) load() (*registry.Registry, error) {
+	if err := registry.CheckFolder(c.root); err != nil {
+		return nil, err
+	}
+	return registry.Load(c.registry)
+}
 
 var errProblems = errors.New("the registry has problems")
 
