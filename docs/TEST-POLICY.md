@@ -16,7 +16,9 @@ its JSON output, and the registry file, each described by a JSON Schema.
 
 Nothing is too slow for the gate, so there's no separate CI-only tier and no
 after-merge suite. A test that ever needs one is moved by changing this
-policy first.
+policy first. No test needs trunk or a deployed environment, and CI runs the
+whole gate again on each merge to `main`, so that run is all that follows a
+merge.
 
 ## Which tier each kind of test runs in
 
@@ -45,6 +47,23 @@ policy first.
   final tag, outside this repo or through `mise exec`, as `CONTRIBUTING.md`
   says, since inside it the pin in `mise.toml` runs the pinned release.
 
+## The seam it provides
+
+This repo provides one seam, `cli:seams/registry`: the registry file and the
+JSON that `seams` writes about it, which other tools, such as sheepdog, read.
+Its consumers live in other repos.
+
+- **Its contract is the JSON Schemas in `schemas/`.** The gate compiles each
+  one and checks its `$id` names its major version
+  (`TestEverySchemaCompilesAndNamesItsMajorVersion`). That's a compile check,
+  not a strict lint such as `jsm validate --strict`. The compatibility test
+  above holds each schema to the last release's.
+- **What `seams` writes is held to it.** Every document it writes for the
+  seam is validated against its schema in the gate, in the tests that produce
+  it, as the API rule above says.
+- **Consumers hold their own side.** Each tool that reads the seam tests
+  itself against the published schemas, in its own repo.
+
 ## Coverage
 
 Unit coverage is 100% of statements, checked in the gate by go-test-coverage.
@@ -71,4 +90,4 @@ deleted by then.
 Mutation testing isn't used yet. It's worth adding on a schedule once the
 detector has enough logic for weak tests to hide in.
 
-<!-- sheepdog test-strategy: {"written":"2026-10-22","project":{"languages":["Go"],"kinds":["cli"],"callsAi":false,"thirdParties":[],"datastores":[],"infrastructure":[],"slowDependencies":[],"exposesApi":"public","deploys":"never","stage":"prototype"},"tiers":{"unit":"gate","scenarios":"gate","api":"gate","fuzz-seeds":"gate","fuzzing":"scheduled","release":"release"}} -->
+<!-- sheepdog test-strategy: {"written":"2026-10-28","project":{"languages":["Go"],"kinds":["cli"],"callsAi":false,"thirdParties":[],"datastores":[],"infrastructure":[],"slowDependencies":[],"exposesApi":"public","deploys":"never","stage":"production"},"tiers":{"unit":"gate","scenarios":"gate","api":"gate","fuzz-seeds":"gate","fuzzing":"scheduled","release":"release"},"seams":["cli:seams/registry"]} -->

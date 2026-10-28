@@ -28,7 +28,7 @@
       "binaries, on GitHub releases"
     ],
     "deploys": "never",
-    "stage": "prototype",
+    "stage": "production",
     "datastores": [],
     "slowDependencies": [],
     "exposesApi": "public",
