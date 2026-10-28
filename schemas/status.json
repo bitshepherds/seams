@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/bitshepherds/seams/schemas/status/v1",
   "title": "seams show and render --status",
-  "description": "Each seam's rung on the coverage ladder, and its gaps, as another tool judged them. Sheepdog writes it; seams only reads it, so seams never judges practices.",
+  "description": "Each seam's rung on the coverage ladder, and its gaps, as another tool judged them. Any tool that judges coverage, such as sheepdog, may write it; seams only reads it, so seams never judges practices.",
   "type": "object",
   "required": ["schema", "seams"],
   "additionalProperties": false,

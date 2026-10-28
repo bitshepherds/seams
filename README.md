@@ -5,14 +5,14 @@ another, and keeps a registry of them. A seam is an HTTP or gRPC API, an
 event or a queue, a shared file, config or table, a library or a CLI. Each
 has a provider, its consumers and an audience, internal or public.
 
-The registry lives in the repo, in `.sheepdog/seams/registry.json`. From it,
+The registry lives in the repo, in `.seams/registry.json`. From it,
 `seams render` writes `docs/SEAMS.md`, the register: every seam, with a
 diagram of the components and the seams between them, and how well each is
 covered. See this repo's own [register](docs/SEAMS.md), and
 [how to read it](docs/READING-THE-REGISTER.md), a guide in plain words for
 anyone who isn't a developer.
 
-## Why sheepdog-seams
+## Why seams
 
 In a distributed system, much of what goes wrong goes wrong between
 components, not inside them. Each side of a seam is built and tested by its
@@ -38,7 +38,7 @@ practice to every seam, not only the ones it happens to remember.
 ## Install
 
 ```sh
-mise use github:bitshepherds/sheepdog-seams@<version>
+mise use github:bitshepherds/seams@<version>
 ```
 
 Or download an archive for your platform from the GitHub releases.
@@ -76,7 +76,8 @@ owner. Give `--owner` with it to name a new owner.
 Every command takes `--json`, and its output matches a published JSON
 Schema in [`schemas/`](schemas). The schemas are the CLI's contract: a
 schema breaks its readers only when its major version rises. Each release
-carries them. Sheepdog uses `seams` only through this output.
+carries them. A tool such as sheepdog uses `seams` only through this
+output.
 
 ## Docs
 

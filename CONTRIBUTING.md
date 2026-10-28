@@ -46,4 +46,4 @@ those notes above its changelog. Empty the file, down to its comment, once a
 final release is out. Leave it as it is after a pre-release, so that every
 pre-release and the final release after them carry the notes.
 
-Install a release with `mise use github:bitshepherds/sheepdog-seams@<version>`.
+Install a release with `mise use github:bitshepherds/seams@<version>`.

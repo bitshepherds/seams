@@ -4,7 +4,7 @@
 
 1 seam(s): 0 internal, 1 crossing out of the system.
 
-New to the register? See [how to read it](https://github.com/bitshepherds/sheepdog-seams/blob/main/docs/READING-THE-REGISTER.md).
+New to the register? See [how to read it](https://github.com/bitshepherds/seams/blob/main/docs/READING-THE-REGISTER.md).
 
 ## Components and seams
 

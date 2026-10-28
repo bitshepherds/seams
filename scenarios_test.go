@@ -116,7 +116,7 @@ func registerSteps(suite *gobdd.Suite) {
 			t.Fatal(err)
 		}
 		doc := string(data)
-		summary, link := strings.Index(doc, "crossing out of the system.\n"), strings.Index(doc, "(https://github.com/bitshepherds/sheepdog-seams/blob/main/docs/READING-THE-REGISTER.md)")
+		summary, link := strings.Index(doc, "crossing out of the system.\n"), strings.Index(doc, "(https://github.com/bitshepherds/seams/blob/main/docs/READING-THE-REGISTER.md)")
 		if summary < 0 || link < summary || strings.Contains(doc[summary:link], "## ") {
 			t.Errorf("seams render wrote\n%s", doc)
 		}
