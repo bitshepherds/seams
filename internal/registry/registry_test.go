@@ -269,3 +269,21 @@ func TestCheckFolderRefusesTheOldFolderAloneOrBesideTheNew(t *testing.T) {
 		t.Errorf("a repo with only the old folder gave %v", err)
 	}
 }
+
+func TestCheckFolderRefusesAnOldFolderItCannotCheck(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root can look inside a folder with no permissions")
+	}
+	root := t.TempDir()
+	parent := filepath.Join(root, filepath.Dir(OldDir))
+	if err := os.MkdirAll(filepath.Join(root, OldDir), 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(parent, 0); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(parent, 0o750) }) //nolint:gosec // restored so TempDir can remove it
+	if err := CheckFolder(root); err == nil || !strings.HasPrefix(err.Error(), "can't check for .sheepdog/seams/:") {
+		t.Errorf("an old folder that can't be checked gave %v", err)
+	}
+}

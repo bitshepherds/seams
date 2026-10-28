@@ -27,8 +27,10 @@ const DefaultPath = Dir + "/registry.json"
 // CheckFolder refuses a repo, at root, that still has its seams files in
 // OldDir, saying how to move them: there's no reading or converting them.
 func CheckFolder(root string) error {
-	if _, err := os.Stat(filepath.Join(root, OldDir)); err != nil {
-		return nil //nolint:nilerr // no old folder is the case to pass
+	if _, err := os.Stat(filepath.Join(root, OldDir)); errors.Is(err, fs.ErrNotExist) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("can't check for %s/: %w", OldDir, err)
 	}
 	if _, err := os.Stat(filepath.Join(root, Dir)); err == nil {
 		return fmt.Errorf("both %s/ and %s/ exist. seams reads only %s/: merge anything you need from %s/ into it by hand, then delete %s/.", OldDir, Dir, Dir, OldDir, OldDir) //nolint:staticcheck // a message in sentences, ending in a full stop

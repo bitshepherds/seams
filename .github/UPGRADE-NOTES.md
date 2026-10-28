@@ -29,3 +29,10 @@ refuses, and says how to move them. So, once, in each repo that uses seams:
 
 A tool that reads seams' JSON output gets the new schema ids. The schemas
 are otherwise unchanged, and still v1.
+
+A tool that writes the status file seams reads with `--status` must now
+write the new schema id,
+`https://github.com/bitshepherds/seams/schemas/status/v1`. seams refuses a
+status file with the old one. Sheepdog, for example, writes that file, and
+still writes the old id until bitshepherds/sheepdog#418 moves it to the new
+one.
