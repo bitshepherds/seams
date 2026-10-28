@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/history/v1",
-  "title": "The register's history, .sheepdog/seams/history.json",
+  "$id": "https://github.com/bitshepherds/seams/schemas/history/v1",
+  "title": "The register's history, history.json",
   "description": "How many seams there were on each day seams render --record ran, and how many at each rung, so a team sees whether coverage keeps pace as seams grow.",
   "type": "object",
   "required": ["schema", "counts"],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/history/v1" },
+    "schema": { "const": "https://github.com/bitshepherds/seams/schemas/history/v1" },
     "counts": { "type": "array", "items": { "$ref": "#/$defs/count" } }
   },
   "$defs": {

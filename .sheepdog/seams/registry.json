@@ -1,5 +1,5 @@
 {
-  "schema": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1",
+  "schema": "https://github.com/bitshepherds/seams/schemas/registry/v1",
   "seams": [
     {
       "id": "cli:seams/registry",

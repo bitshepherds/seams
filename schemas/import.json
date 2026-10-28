@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/import/v1",
+  "$id": "https://github.com/bitshepherds/seams/schemas/import/v1",
   "title": "seams import catalog-info --json",
   "description": "What the import did to each seam, or chose not to do.",
   "type": "object",
   "required": ["schema", "changes"],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/import/v1" },
+    "schema": { "const": "https://github.com/bitshepherds/seams/schemas/import/v1" },
     "changes": {
       "type": "array",
       "items": {

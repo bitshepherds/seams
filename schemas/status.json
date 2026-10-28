@@ -1,17 +1,17 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/status/v1",
+  "$id": "https://github.com/bitshepherds/seams/schemas/status/v1",
   "title": "seams show and render --status",
   "description": "Each seam's rung on the coverage ladder, and its gaps, as another tool judged them. Sheepdog writes it; seams only reads it, so seams never judges practices.",
   "type": "object",
   "required": ["schema", "seams"],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/status/v1" },
+    "schema": { "const": "https://github.com/bitshepherds/seams/schemas/status/v1" },
     "seams": {
       "type": "object",
       "description": "Each rated seam, by its id, or by an id it had before a rename.",
-      "propertyNames": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/id" },
+      "propertyNames": { "$ref": "https://github.com/bitshepherds/seams/schemas/registry/v1#/$defs/id" },
       "additionalProperties": { "$ref": "#/$defs/rating" }
     }
   },
