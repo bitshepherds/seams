@@ -30,8 +30,9 @@ it on every pull request, and the pre-commit hook runs its fast part,
 Edit this repo's registry with the code you have checked out:
 `go run ./cmd/seams add`, `go run ./cmd/seams update` and
 `go run ./cmd/seams render`. Never use the installed `seams`. It's the
-release pinned in `mise.toml`, which sheepdog reads the registry with, and it
-may be older than your checkout: it could drop fields it doesn't know.
+release pinned in `mise.toml`, which sheepdog reads and writes the registry
+with, and it may be older than your checkout: it could drop fields it doesn't
+know. That's why the pin follows every final release (see Release).
 
 ## Work with sheepdog
 
@@ -59,6 +60,8 @@ After each final release, a follow-up chore moves the
 move `mise.lock` with it, so the pin never falls behind. A pre-release never
 moves the pin.
 
-Install a release, or a release candidate to try it out, with
-`mise use -g github:bitshepherds/seams@<version>`, or run `mise use` outside
-this repo. Inside it, `mise use` without `-g` rewrites the repo's pin.
+Try a release, or a release candidate, outside this repo, or inside it with
+`mise exec github:bitshepherds/seams@<version> -- seams …`, which runs that
+version in spite of the pin. Inside the repo, the pin in `mise.toml` wins over
+a global install (`mise use -g`), so `seams` there still runs the pinned
+release, and `mise use` without `-g` rewrites the pin.
