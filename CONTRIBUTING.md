@@ -54,8 +54,11 @@ those notes above its changelog. Empty the file, down to its comment, once a
 final release is out. Leave it as it is after a pre-release, so that every
 pre-release and the final release after them carry the notes.
 
-After each release, a follow-up chore moves the `github:bitshepherds/seams`
-pin in `mise.toml` to it, and runs `mise lock` to move `mise.lock` with it, so
-the pin never falls behind.
+After each final release, a follow-up chore moves the
+`github:bitshepherds/seams` pin in `mise.toml` to it, and runs `mise lock` to
+move `mise.lock` with it, so the pin never falls behind. A pre-release never
+moves the pin.
 
-Install a release with `mise use github:bitshepherds/seams@<version>`.
+Install a release, or a release candidate to try it out, with
+`mise use -g github:bitshepherds/seams@<version>`, or run `mise use` outside
+this repo. Inside it, `mise use` without `-g` rewrites the repo's pin.

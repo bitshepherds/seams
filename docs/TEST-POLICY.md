@@ -41,8 +41,9 @@ policy first.
   few minutes, and a failure files an issue with the crashing input, which
   then joins the seed corpus.
 - **Release checks run on a tag.** GoReleaser builds every platform there;
-  the gate only checks its config. Each release candidate is installed through
-  mise and run before its final tag.
+  the gate only checks its config. Each release candidate is installed
+  globally through mise, as `CONTRIBUTING.md` says, and run before its final
+  tag.
 
 ## Coverage
 
