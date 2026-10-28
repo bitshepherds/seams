@@ -1,5 +1,6 @@
 [project]
 name = "reports"
+version = "0.1.0"
 dependencies = [
   "grpcio>=1.64",
 ]
