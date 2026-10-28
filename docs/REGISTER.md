@@ -3,7 +3,10 @@
 The register is every seam in the registry, with its characteristics and
 test world, so the team sees all of them in one place, not only the ones it
 happens to know. `seams render` commits it as `docs/SEAMS.md`, and the gate
-checks that it's up to date.
+checks that it's up to date. It links to
+[Reading the register](READING-THE-REGISTER.md), which explains it in plain
+words for a business reader; this page is the reference for its commands
+and fields.
 
 seams keeps its own files in `.sheepdog/seams/`, and writes nowhere else
 under `.sheepdog/`, which other tools share: the registry, `registry.json`;

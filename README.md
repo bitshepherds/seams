@@ -8,7 +8,9 @@ has a provider, its consumers and an audience, internal or public.
 The registry lives in the repo, in `.sheepdog/seams/registry.json`. From it,
 `seams render` writes `docs/SEAMS.md`, the register: every seam, with a
 diagram of the components and the seams between them, and how well each is
-covered. See this repo's own [register](docs/SEAMS.md).
+covered. See this repo's own [register](docs/SEAMS.md), and
+[how to read it](docs/READING-THE-REGISTER.md), a guide in plain words for
+anyone who isn't a developer.
 
 ## Why sheepdog-seams
 
