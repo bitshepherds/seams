@@ -38,7 +38,7 @@ builds on the rungs below it.
 
 | Rung | The seam has reached | What it protects against |
 | --- | --- | --- |
-| 0 | Nothing yet | Nothing. No one has looked at the seam yet. |
+| 0 | Not yet rung 1 | Nothing yet. The seam has been rated, and none of the protections below is in place. |
 | 1 | The seam, its two sides and who uses it are known | A seam nobody knows about. Now someone owns each side, and knows the other side relies on it. |
 | 2 | A written, versioned agreement on how the two sides talk, checked for mistakes | Each side working from its own idea of what was agreed. The agreement is called the **contract**. |
 | 3 | Each change to the contract checked against the current one and the last release | A change to the contract that would break a side still relying on the old one. |
@@ -80,8 +80,11 @@ or when the public can use it.
 ### The diagram
 
 Under the summary, a diagram shows each part of the system as a box, and each
-seam as an arrow from its provider to a consumer. The parts inside the system
-are drawn together, and those outside it apart.
+seam as an arrow from its provider to a consumer. A seam with no single
+owner, such as a file several parts share, has no provider to start from, so
+it is drawn as a six-sided box of its own, with an arrow from it to each
+consumer. The parts inside the system are drawn together, and those outside
+it apart.
 
 ### The tables
 
@@ -109,8 +112,9 @@ system. Each row is one seam. Its columns are:
   side each tests, when it runs, and the tool that runs it.
 - **Rung**: how far up the ladder the seam is, out of its top. **4 of 6**
   means it has reached rung 4 of a ladder that goes to 6. **5 of 5** means it
-  has reached its top. **not rated** means nobody has rated it yet, so its
-  protection is unknown.
+  has reached its top. **not rated** means nobody has rated it at all, so
+  how well it is protected is unknown. That differs from **0 of 6**, where it
+  has been rated and has none of the protections yet.
 - **Gaps**: what the seam needs to reach the next rung, the most pressing
   first.
 

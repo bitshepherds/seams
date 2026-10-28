@@ -84,6 +84,8 @@ carries them. Sheepdog uses `seams` only through this output.
   how far to trust them.
 - [The register](docs/REGISTER.md): `seams show` and `render`, and the
   coverage ladder.
+- [Reading the register](docs/READING-THE-REGISTER.md): what the register
+  shows, in plain words, for a reader who isn't a developer.
 - [Test policy](docs/TEST-POLICY.md): which tests run where.
 - [Contributing](CONTRIBUTING.md): setting up, the gate, and releasing.
 
