@@ -25,6 +25,14 @@ Run `mise run check`. It's the one command that checks the repo: the gate. CI ru
 it on every pull request, and the pre-commit hook runs its fast part,
 `mise run fast`, on every commit.
 
+## Edit the seam registry
+
+Edit this repo's registry with the code you have checked out:
+`go run ./cmd/seams add`, `go run ./cmd/seams update` and
+`go run ./cmd/seams render`. Never use the installed `seams`. It's the
+release pinned in `mise.toml`, which sheepdog reads the registry with, and it
+may be older than your checkout: it could drop fields it doesn't know.
+
 ## Work with sheepdog
 
 Plan work in the planning session (`sheepdog plan`), and build each issue in
@@ -45,5 +53,9 @@ When a change asks something of a repo that upgrades seams, such as running
 those notes above its changelog. Empty the file, down to its comment, once a
 final release is out. Leave it as it is after a pre-release, so that every
 pre-release and the final release after them carry the notes.
+
+After each release, a follow-up chore moves the `github:bitshepherds/seams`
+pin in `mise.toml` to it, and runs `mise lock` to move `mise.lock` with it, so
+the pin never falls behind.
 
 Install a release with `mise use github:bitshepherds/seams@<version>`.

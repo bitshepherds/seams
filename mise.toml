@@ -11,6 +11,10 @@ lockfile = true
 actionlint = "1.7.12"
 betterleaks = "1.9.0"
 cocogitto = "7.0.0"
+# The released seams, which sheepdog reads this repo's registry with. The gate,
+# and every edit to the registry, use this checkout's own code instead
+# (go run ./cmd/seams), which may be newer. Moved on after each release.
+"github:bitshepherds/seams" = "1.0.0"
 "github:vladopajic/go-test-coverage" = "2.20.0"
 go = "1.27.3"
 "go:golang.org/x/vuln/cmd/govulncheck" = "1.9.0"
