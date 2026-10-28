@@ -1,3 +1,4 @@
 [project]
 name = "reports"
+version = "0.1.0"
 dependencies = ["psycopg>=3.2"]
