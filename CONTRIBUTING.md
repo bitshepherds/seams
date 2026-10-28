@@ -25,6 +25,15 @@ Run `mise run check`. It's the one command that checks the repo: the gate. CI ru
 it on every pull request, and the pre-commit hook runs its fast part,
 `mise run fast`, on every commit.
 
+## Edit the seam registry
+
+Edit this repo's registry with the code you have checked out:
+`go run ./cmd/seams add`, `go run ./cmd/seams update` and
+`go run ./cmd/seams render`. Never use the installed `seams`. It's the
+release pinned in `mise.toml`, which sheepdog reads and writes the registry
+with, and it may be older than your checkout: it could drop fields it doesn't
+know. That's why the pin follows every final release (see Release).
+
 ## Work with sheepdog
 
 Plan work in the planning session (`sheepdog plan`), and build each issue in
@@ -46,4 +55,13 @@ those notes above its changelog. Empty the file, down to its comment, once a
 final release is out. Leave it as it is after a pre-release, so that every
 pre-release and the final release after them carry the notes.
 
-Install a release with `mise use github:bitshepherds/seams@<version>`.
+After each final release, a follow-up chore moves the
+`github:bitshepherds/seams` pin in `mise.toml` to it, and runs `mise lock` to
+move `mise.lock` with it, so the pin never falls behind. A pre-release never
+moves the pin.
+
+Try a release, or a release candidate, outside this repo, or inside it with
+`mise exec github:bitshepherds/seams@<version> -- seams …`, which runs that
+version in spite of the pin. Inside the repo, the pin in `mise.toml` wins over
+a global install (`mise use -g`), so `seams` there still runs the pinned
+release, and `mise use` without `-g` rewrites the pin.
