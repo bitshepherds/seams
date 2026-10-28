@@ -41,10 +41,14 @@
     "scripts": "44136fa355b3",
     "workspaces": "4f53cda18c2b",
     "makeTargets": "4f53cda18c2b",
-    "ci": "c3cb82c937ff",
+    "ci": "56b2fb4ebde5",
     "hooks": "2485ba485215",
     "lockfiles": "c45706289286",
     "commitlint": "4f53cda18c2b",
     "toolchain": "5cec2de0a04f"
+  },
+  "ciTime": {
+    "budget": 10,
+    "job": "check"
   }
 }
