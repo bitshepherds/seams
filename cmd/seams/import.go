@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 func importFrom(c *cli, args []string) int {

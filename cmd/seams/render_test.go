@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitshepherds/sheepdog-seams/schemas"
+	"github.com/bitshepherds/seams/schemas"
 )
 
 // threeSeams are an internal event, a vendor's public API, and a table with

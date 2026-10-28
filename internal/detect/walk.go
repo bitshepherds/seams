@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 // scan is one detection's state: the repo's files and components, and the

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 // Drift is how the registry differs from the code.

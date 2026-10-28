@@ -1,4 +1,4 @@
-package sheepdogseams
+package seams
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-bdd/gobdd"
 
-	"github.com/bitshepherds/sheepdog-seams/schemas"
+	"github.com/bitshepherds/seams/schemas"
 )
 
 // The version the scenarios' build of seams is stamped with.

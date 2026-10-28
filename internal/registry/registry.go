@@ -11,7 +11,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bitshepherds/sheepdog-seams/schemas"
+	"github.com/bitshepherds/seams/schemas"
 )
 
 // DefaultPath is where a repo keeps its registry, unless --registry says.

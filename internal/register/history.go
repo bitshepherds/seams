@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bitshepherds/sheepdog-seams/schemas"
+	"github.com/bitshepherds/seams/schemas"
 )
 
 // DefaultHistory is where a repo keeps its register's history.

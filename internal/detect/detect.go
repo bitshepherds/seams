@@ -10,7 +10,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 // Evidence is one thing in the repo that suggests a seam.

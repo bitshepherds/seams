@@ -12,8 +12,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
-	"github.com/bitshepherds/sheepdog-seams/schemas"
+	"github.com/bitshepherds/seams/internal/registry"
+	"github.com/bitshepherds/seams/schemas"
 )
 
 // Top is the coverage ladder's top rung. Rung 0 is no coverage at all.

@@ -1,9 +1,9 @@
-package sheepdogseams
+package seams
 
 import (
 	"testing"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 // This repo practises what it checks: its CLI's output is a seam, in its own

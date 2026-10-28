@@ -13,8 +13,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
-	"github.com/bitshepherds/sheepdog-seams/schemas"
+	"github.com/bitshepherds/seams/internal/registry"
+	"github.com/bitshepherds/seams/schemas"
 )
 
 // version is stamped in at build, by the release: -ldflags "-X main.version=…".

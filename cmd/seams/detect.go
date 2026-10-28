@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/detect"
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/detect"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 var errDrift = errors.New("the registry has drifted from the code")

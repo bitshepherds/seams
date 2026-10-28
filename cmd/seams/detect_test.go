@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitshepherds/sheepdog-seams/schemas"
+	"github.com/bitshepherds/seams/schemas"
 )
 
 // fixture is a fixture repo's path, under testdata/.

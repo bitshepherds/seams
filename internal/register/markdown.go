@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 // DefaultDoc is where seams render writes the register.

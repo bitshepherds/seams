@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 // emptyRegistry is the path of a registry not written yet.

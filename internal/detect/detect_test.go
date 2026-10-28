@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 // detectFixture detects the seams of a fixture repo under testdata/.

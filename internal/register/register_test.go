@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
-	"github.com/bitshepherds/sheepdog-seams/schemas"
+	"github.com/bitshepherds/seams/internal/registry"
+	"github.com/bitshepherds/seams/schemas"
 )
 
 func seam(id, provider string, audience string, consumers ...registry.Party) registry.Seam {

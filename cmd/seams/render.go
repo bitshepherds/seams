@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/register"
+	"github.com/bitshepherds/seams/internal/register"
 )
 
 var errStale = errors.New("the register is out of date: run seams render")
