@@ -109,6 +109,17 @@ func registerSteps(suite *gobdd.Suite) {
 			t.Errorf("seams render wrote\n%s", doc)
 		}
 	})
+	suite.AddStep(`docs/SEAMS.md links to the guide to reading it, under its summary line`, func(t gobdd.StepTest, ctx gobdd.Context) {
+		data, err := os.ReadFile(filepath.Join(get(t, ctx, "dir"), "docs", "SEAMS.md"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		doc := string(data)
+		summary, link := strings.Index(doc, "crossing out of the system.\n"), strings.Index(doc, "(https://github.com/bitshepherds/sheepdog-seams/blob/main/docs/READING-THE-REGISTER.md)")
+		if summary < 0 || link < summary || strings.Contains(doc[summary:link], "## ") {
+			t.Errorf("seams render wrote\n%s", doc)
+		}
+	})
 }
 
 // topSteps are for each seam's top rung, which whether its sides deploy

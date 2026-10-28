@@ -51,7 +51,7 @@ func TestRegisterSeparatesInternalSeamsFromThoseThatCrossOutOfTheSystem(t *testi
 func TestAnEmptyRegisterSaysSo(t *testing.T) {
 	doc := Markdown(Build(&registry.Registry{}, &Status{}), nil, true)
 	want := "# Seams\n\n<!-- Written by seams render, from the registry. Run it again rather than editing this file. -->\n\n" +
-		"0 seam(s): 0 internal, 0 crossing out of the system.\n\n## Internal seams\n\nNone.\n\n## Seams that cross out of the system\n\nNone.\n"
+		"0 seam(s): 0 internal, 0 crossing out of the system.\n\nNew to the register? See [how to read it](" + Guide + ").\n\n## Internal seams\n\nNone.\n\n## Seams that cross out of the system\n\nNone.\n"
 	if doc != want {
 		t.Errorf("an empty register is\n%s", doc)
 	}

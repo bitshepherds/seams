@@ -34,7 +34,16 @@ jobs:
       - run: mise run check
         env:
           GH_TOKEN: ${{ github.token }}
-      - run: goreleaser release --clean
+      # The upgrade notes in .github/UPGRADE-NOTES.md, less its comments, go
+      # above the changelog; when it holds no notes, nothing does.
+      - run: |
+          notes="$RUNNER_TEMP/upgrade-notes.md"
+          perl -0777 -pe 's/<!--.*?-->//gs' .github/UPGRADE-NOTES.md > "$notes"
+          header=()
+          if grep -q '[^[:space:]]' "$notes"; then
+            header=(--release-header "$notes")
+          fi
+          goreleaser release --clean "${header[@]}"
         env:
           GITHUB_TOKEN: ${{ github.token }}
       # Attestations on a private repo need GitHub Enterprise Cloud, so this

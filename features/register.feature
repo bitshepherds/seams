@@ -13,6 +13,11 @@ Feature: seams draws the register of a repo's seams
     When a developer runs seams render
     Then docs/SEAMS.md lists the internal seams apart from the external one, under a diagram of the components and their seams
 
+  Scenario: The register points a reader to how to read it
+    Given a registry with internal seams and one that crosses out of the system
+    When a developer runs seams render
+    Then docs/SEAMS.md links to the guide to reading it, under its summary line
+
   Scenario: A seam whose sides deploy together tops out at rung 5
     Given a registry whose seam http:backend/quotes deploys independently: false, and a status file that rates it 5
     When a developer runs seams render --status status.json

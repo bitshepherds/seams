@@ -11,16 +11,24 @@ import (
 // DefaultDoc is where seams render writes the register.
 const DefaultDoc = "docs/SEAMS.md"
 
-// Markdown is the register for the team to read: a diagram of the
-// components and the seams between them, the internal seams apart from those
-// that cross out of the system, and the history of the count. rated says a
-// status file was given, so each seam's rung is shown.
+// Guide is the plain-language guide to reading the register. It's on main,
+// not pinned to a release, so the link works in any repo that uses seams, and
+// stays the same from one release to the next: the rungs' meanings are stable
+// under the status schema's v1.
+const Guide = "https://github.com/bitshepherds/sheepdog-seams/blob/main/docs/READING-THE-REGISTER.md"
+
+// Markdown is the register for the team to read: a link to the guide to
+// reading it, a diagram of the components and the seams between them, the
+// internal seams apart from those that cross out of the system, and the
+// history of the count. rated says a status file was given, so each seam's
+// rung is shown.
 func Markdown(entries []Entry, h *History, rated bool) string {
 	var b strings.Builder
 	internal, out := split(entries)
 	b.WriteString("# Seams\n\n")
 	b.WriteString("<!-- Written by seams render, from the registry. Run it again rather than editing this file. -->\n\n")
 	fmt.Fprintf(&b, "%d seam(s): %d internal, %d crossing out of the system.\n", len(entries), len(internal), len(out))
+	fmt.Fprintf(&b, "\nNew to the register? See [how to read it](%s).\n", Guide)
 	if len(entries) > 0 {
 		b.WriteString("\n## Components and seams\n\n")
 		diagram(&b, entries)

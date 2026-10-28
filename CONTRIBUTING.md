@@ -40,4 +40,10 @@ Each archive comes with an SPDX SBOM, written by Syft. Once the repo is public,
 each also gets a build provenance attestation, which `gh attestation verify`
 checks.
 
+When a change asks something of a repo that upgrades seams, such as running
+`seams render` again, say so in `.github/UPGRADE-NOTES.md`. The release puts
+those notes above its changelog. Empty the file, down to its comment, once a
+final release is out. Leave it as it is after a pre-release, so that every
+pre-release and the final release after them carry the notes.
+
 Install a release with `mise use github:bitshepherds/sheepdog-seams@<version>`.
