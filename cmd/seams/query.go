@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/register"
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/register"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 func list(c *cli, args []string) int {

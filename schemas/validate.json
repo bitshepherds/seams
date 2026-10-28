@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/validate/v1",
+  "$id": "https://github.com/bitshepherds/seams/schemas/validate/v1",
   "title": "seams validate --json",
   "description": "What validating the registry found. A problem makes it invalid, and the command exit 1; a finding is a fact the team should know.",
   "type": "object",
   "required": ["schema", "ok", "problems", "findings"],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/validate/v1" },
+    "schema": { "const": "https://github.com/bitshepherds/seams/schemas/validate/v1" },
     "ok": { "type": "boolean" },
     "problems": { "type": "array", "items": { "$ref": "#/$defs/note" } },
     "findings": { "type": "array", "items": { "$ref": "#/$defs/note" } }

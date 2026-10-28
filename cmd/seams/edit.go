@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 // names is a flag that may be given more than once, or as a comma list.

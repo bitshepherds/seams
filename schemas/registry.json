@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1",
+  "$id": "https://github.com/bitshepherds/seams/schemas/registry/v1",
   "title": "A repo's seam registry",
   "description": "Each seam a repo has, with its provider, consumers, contract and test world. It holds no practice status or other tool's state.",
   "type": "object",
   "required": ["schema", "seams"],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1" },
+    "schema": { "const": "https://github.com/bitshepherds/seams/schemas/registry/v1" },
     "seams": { "type": "array", "items": { "$ref": "#/$defs/seam" } },
     "rejected": { "type": "array", "items": { "$ref": "#/$defs/rejection" } }
   },

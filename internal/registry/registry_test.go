@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/bitshepherds/seams/schemas"
 )
 
 func party(name string) *Party { return &Party{Name: name} }
@@ -161,7 +163,7 @@ func TestRejectedCandidateWithAMalformedIDIsRefused(t *testing.T) {
 }
 
 func TestRegistrySavesAndLoadsAsItWas(t *testing.T) {
-	path := filepath.Join(t.TempDir(), ".sheepdog", "seams", "registry.json")
+	path := filepath.Join(t.TempDir(), ".seams", "registry.json")
 	independent := true
 	s := seam("http:stripe/payments", &Party{Name: "stripe", External: true}, "checkout", "ledger", "mailer")
 	s.Consumers[0].InRepo = Yes()
@@ -230,5 +232,58 @@ func TestSavingWhereNoDirectoryCanBeMadeFails(t *testing.T) {
 	}
 	if err := New().Save(filepath.Join(file, "seams.json")); err == nil {
 		t.Fatal("saved under a file")
+	}
+}
+
+func TestARegistryWithTheOldSchemaIDIsRefusedWithItsNewID(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "registry.json")
+	if err := os.WriteFile(path, []byte(`{"schema": "`+schemas.OldAddress+`registry/v1", "seams": []}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Load(path); err == nil || !strings.Contains(err.Error(), "Change it to "+schemas.ID(Schema)+".") {
+		t.Errorf("an old schema id gave %v", err)
+	}
+}
+
+func TestCheckFolderRefusesTheOldFolderAloneOrBesideTheNew(t *testing.T) {
+	root := t.TempDir()
+	if err := CheckFolder(root); err != nil {
+		t.Errorf("a repo with neither folder gave %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, Dir), 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := CheckFolder(root); err != nil {
+		t.Errorf("a repo with only %s/ gave %v", Dir, err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, OldDir), 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := CheckFolder(root); err == nil || !strings.HasPrefix(err.Error(), "both .sheepdog/seams/ and .seams/ exist.") {
+		t.Errorf("a repo with both folders gave %v", err)
+	}
+	if err := os.Remove(filepath.Join(root, Dir)); err != nil {
+		t.Fatal(err)
+	}
+	if err := CheckFolder(root); err == nil || !strings.Contains(err.Error(), `"git mv .sheepdog/seams .seams"`) {
+		t.Errorf("a repo with only the old folder gave %v", err)
+	}
+}
+
+func TestCheckFolderRefusesAnOldFolderItCannotCheck(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("root can look inside a folder with no permissions")
+	}
+	root := t.TempDir()
+	parent := filepath.Join(root, filepath.Dir(OldDir))
+	if err := os.MkdirAll(filepath.Join(root, OldDir), 0o750); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(parent, 0); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(parent, 0o750) }) //nolint:gosec // restored so TempDir can remove it
+	if err := CheckFolder(root); err == nil || !strings.HasPrefix(err.Error(), "can't check for .sheepdog/seams/:") {
+		t.Errorf("an old folder that can't be checked gave %v", err)
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitshepherds/sheepdog-seams/schemas"
+	"github.com/bitshepherds/seams/schemas"
 )
 
 func TestAProvidersUnnamedAPIJoinsItsOneNamedAPI(t *testing.T) {

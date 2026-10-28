@@ -23,8 +23,8 @@ func FuzzParseID(f *testing.F) {
 // validates without panicking.
 func FuzzLoadRegistry(f *testing.F) {
 	for _, s := range []string{
-		`{"schema": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1", "seams": []}`,
-		`{"schema": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1", "seams": [` +
+		`{"schema": "https://github.com/bitshepherds/seams/schemas/registry/v1", "seams": []}`,
+		`{"schema": "https://github.com/bitshepherds/seams/schemas/registry/v1", "seams": [` +
 			`{"id": "table:_/quotes", "provider": null, "consumers": [{"name": "a"}], "audience": "internal"}]}`,
 		`{"seams": [{"id": "x"}]}`, `[]`, `{`, ``,
 	} {

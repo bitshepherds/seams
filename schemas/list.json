@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/list/v1",
+  "$id": "https://github.com/bitshepherds/seams/schemas/list/v1",
   "title": "seams list --json",
   "description": "Every seam in the registry, as the registry has it.",
   "type": "object",
   "required": ["schema", "seams"],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/list/v1" },
-    "seams": { "type": "array", "items": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/seam" } }
+    "schema": { "const": "https://github.com/bitshepherds/seams/schemas/list/v1" },
+    "seams": { "type": "array", "items": { "$ref": "https://github.com/bitshepherds/seams/schemas/registry/v1#/$defs/seam" } }
   }
 }

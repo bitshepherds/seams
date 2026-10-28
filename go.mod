@@ -1,4 +1,4 @@
-module github.com/bitshepherds/sheepdog-seams
+module github.com/bitshepherds/seams
 
 go 1.25
 

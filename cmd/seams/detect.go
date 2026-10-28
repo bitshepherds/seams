@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/detect"
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/detect"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 var errDrift = errors.New("the registry has drifted from the code")
@@ -22,6 +22,7 @@ func detectSeams(c *cli, args []string) int {
 		return 2
 	}
 	abs, _ := filepath.Abs(*root) // the working directory is known, or nothing runs
+	c.root = abs
 	if !flagSet(fs, "registry") {
 		c.registry = filepath.Join(abs, registry.DefaultPath)
 	}

@@ -1,14 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/rejection/v1",
+  "$id": "https://github.com/bitshepherds/seams/schemas/rejection/v1",
   "title": "seams reject --json",
   "description": "The rejected candidate, and whether it wasn't rejected already.",
   "type": "object",
   "required": ["schema", "rejection", "new"],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/rejection/v1" },
-    "rejection": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/rejection" },
+    "schema": { "const": "https://github.com/bitshepherds/seams/schemas/rejection/v1" },
+    "rejection": { "$ref": "https://github.com/bitshepherds/seams/schemas/registry/v1#/$defs/rejection" },
     "new": { "type": "boolean" }
   }
 }

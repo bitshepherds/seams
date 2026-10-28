@@ -6,12 +6,18 @@ import (
 	"reflect"
 	"slices"
 	"sort"
+	"strings"
 )
 
 // Breaks lists how a new version of a schema breaks documents or readers
 // that the old one served: a removed property, a changed type or constant,
 // a newly required property, a dropped enum value. A break is allowed only
 // when the schema's major version rises, so Breaks returns none then.
+//
+// The schemas moved address with the repo's rename, from OldAddress to
+// Address, still v1. So before comparing, Breaks moves each string in
+// the old schema that starts OldAddress to Address, and changes nothing
+// else: the move alone breaks nothing, and any other change is still judged.
 func Breaks(old, new []byte) ([]string, error) {
 	var o, n map[string]any
 	if err := json.Unmarshal(old, &o); err != nil {
@@ -20,6 +26,7 @@ func Breaks(old, new []byte) ([]string, error) {
 	if err := json.Unmarshal(new, &n); err != nil {
 		return nil, fmt.Errorf("the new schema: %w", err)
 	}
+	moveAddress(o)
 	oldID, _ := o["$id"].(string)
 	newID, _ := n["$id"].(string)
 	if Major(oldID) != Major(newID) {
@@ -28,6 +35,47 @@ func Breaks(old, new []byte) ([]string, error) {
 	var breaks []string
 	compare("", o, n, &breaks)
 	return breaks, nil
+}
+
+// The schemas' address before and after the repo's rename.
+const (
+	OldAddress = "https://github.com/bitshepherds/sheepdog-seams/schemas/"
+	Address    = "https://github.com/bitshepherds/seams/schemas/"
+)
+
+// Renamed refuses a document at path whose schema is an id from before the
+// repo's rename, naming the id to change it to. It passes anything else,
+// including what isn't JSON, for Validate to judge.
+func Renamed(path string, doc []byte) error {
+	var d struct {
+		Schema any `json:"schema"`
+	}
+	_ = json.Unmarshal(doc, &d) // what isn't JSON is Validate's to report
+	id, _ := d.Schema.(string)
+	if rest, ok := strings.CutPrefix(id, OldAddress); ok {
+		return fmt.Errorf("%s carries the schema id %s, from before seams was renamed. Change it to %s.", path, id, Address+rest) //nolint:staticcheck // a message in sentences, ending in a full stop
+	}
+	return nil
+}
+
+// moveAddress rewrites, in place, each string in a decoded schema that
+// starts OldAddress to start Address instead, at any depth.
+func moveAddress(v any) any {
+	switch v := v.(type) {
+	case string:
+		if rest, ok := strings.CutPrefix(v, OldAddress); ok {
+			return Address + rest
+		}
+	case map[string]any:
+		for k, sub := range v {
+			v[k] = moveAddress(sub)
+		}
+	case []any:
+		for i, sub := range v {
+			v[i] = moveAddress(sub)
+		}
+	}
+	return v
 }
 
 // compare walks two versions of one subschema, noting each break.

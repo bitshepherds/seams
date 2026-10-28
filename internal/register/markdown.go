@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 // DefaultDoc is where seams render writes the register.
@@ -15,7 +15,7 @@ const DefaultDoc = "docs/SEAMS.md"
 // not pinned to a release, so the link works in any repo that uses seams, and
 // stays the same from one release to the next: the rungs' meanings are stable
 // under the status schema's v1.
-const Guide = "https://github.com/bitshepherds/sheepdog-seams/blob/main/docs/READING-THE-REGISTER.md"
+const Guide = "https://github.com/bitshepherds/seams/blob/main/docs/READING-THE-REGISTER.md"
 
 // Markdown is the register for the team to read: a link to the guide to
 // reading it, a diagram of the components and the seams between them, the

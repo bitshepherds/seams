@@ -11,11 +11,33 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bitshepherds/sheepdog-seams/schemas"
+	"github.com/bitshepherds/seams/schemas"
 )
 
+// Dir is the folder, in a repo's root, that holds its seams files.
+const Dir = ".seams"
+
+// OldDir is the folder that held a repo's seams files before seams was
+// renamed. seams doesn't read it: see CheckFolder.
+const OldDir = ".sheepdog/seams"
+
 // DefaultPath is where a repo keeps its registry, unless --registry says.
-const DefaultPath = ".sheepdog/seams/registry.json"
+const DefaultPath = Dir + "/registry.json"
+
+// CheckFolder refuses a repo, at root, that still has its seams files in
+// OldDir, saying how to move them: there's no reading or converting them.
+func CheckFolder(root string) error {
+	if _, err := os.Stat(filepath.Join(root, OldDir)); errors.Is(err, fs.ErrNotExist) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("can't check for %s/: %w", OldDir, err)
+	}
+	if _, err := os.Stat(filepath.Join(root, Dir)); err == nil {
+		return fmt.Errorf("both %s/ and %s/ exist. seams reads only %s/: merge anything you need from %s/ into it by hand, then delete %s/.", OldDir, Dir, Dir, OldDir, OldDir) //nolint:staticcheck // a message in sentences, ending in a full stop
+	}
+	return fmt.Errorf(`%s/ holds seams files from before seams was renamed, which this version doesn't read. Move them with "git mv %s %s", then change each file's schema from %s<name>/v1 to %s<name>/v1.`, //nolint:staticcheck // a message in sentences, ending in a full stop
+		OldDir, OldDir, Dir, schemas.OldAddress, schemas.Address)
+}
 
 // Schema names the registry file's schema.
 const Schema = "registry"
@@ -108,6 +130,9 @@ func Load(path string) (*Registry, error) {
 		return New(), nil
 	}
 	if err != nil {
+		return nil, err
+	}
+	if err := schemas.Renamed(path, data); err != nil {
 		return nil, err
 	}
 	r, err := Parse(data)

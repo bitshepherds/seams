@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/detect/v1",
+  "$id": "https://github.com/bitshepherds/seams/schemas/detect/v1",
   "title": "seams detect --json",
   "description": "The seams detection proposes for a repo, for a person to confirm: each with its provider, consumers, evidence by file and line, and confidence. Candidates the registry has rejected are left out.",
   "type": "object",
   "required": ["schema", "components", "candidates"],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/detect/v1" },
+    "schema": { "const": "https://github.com/bitshepherds/seams/schemas/detect/v1" },
     "components": { "type": "array", "items": { "$ref": "#/$defs/component" } },
     "candidates": { "type": "array", "items": { "$ref": "#/$defs/candidate" } }
   },
@@ -29,18 +29,18 @@
       "additionalProperties": false,
       "properties": {
         "id": {
-          "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/id",
+          "$ref": "https://github.com/bitshepherds/seams/schemas/registry/v1#/$defs/id",
           "description": "Derived as the registry's ids are, so it matches a registered seam, or a rejection, by id. Its name is api for a provider's one API of a kind, when the evidence doesn't name it."
         },
         "kind": { "enum": ["http", "grpc", "graphql", "event", "queue", "file", "config", "table", "lib", "cli"] },
         "provider": {
           "description": "Who the evidence says provides it, or null when it doesn't say, or when several parties do.",
-          "oneOf": [{ "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/party" }, { "type": "null" }]
+          "oneOf": [{ "$ref": "https://github.com/bitshepherds/seams/schemas/registry/v1#/$defs/party" }, { "type": "null" }]
         },
         "consumers": {
           "description": "The parties the evidence shows using it; empty when none is seen, such as for a public API.",
           "type": "array",
-          "items": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/party" }
+          "items": { "$ref": "https://github.com/bitshepherds/seams/schemas/registry/v1#/$defs/party" }
         },
         "audience": { "enum": ["internal", "public"] },
         "contract": { "type": "string", "description": "A contract file that describes it, from the repo's root." },

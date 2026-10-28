@@ -1,0 +1,9 @@
+{
+  "schema": "https://github.com/bitshepherds/seams/schemas/history/v1",
+  "counts": [
+    {
+      "date": "2026-10-23",
+      "seams": 1
+    }
+  ]
+}

@@ -6,12 +6,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
+	"github.com/bitshepherds/seams/internal/registry"
 )
 
 // emptyRegistry is the path of a registry not written yet.
 func emptyRegistry(t *testing.T) string {
-	return filepath.Join(t.TempDir(), ".sheepdog", "seams", "registry.json")
+	return filepath.Join(t.TempDir(), ".seams", "registry.json")
 }
 
 func mustLoad(t *testing.T, path string) *registry.Registry {

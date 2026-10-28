@@ -8,10 +8,9 @@ checks that it's up to date. It links to
 words for a business reader; this page is the reference for its commands
 and fields.
 
-seams keeps its own files in `.sheepdog/seams/`, and writes nowhere else
-under `.sheepdog/`, which other tools share: the registry, `registry.json`;
-the register's history, `history.json`; and the status file it was last
-given, `status.json`.
+seams keeps its own files in `.seams/`: the registry, `registry.json`; the
+register's history, `history.json`; and the status file it was last given,
+`status.json`.
 
 ```sh
 seams show                        # the register, one seam after another
@@ -75,7 +74,7 @@ silently. With a status file, the gaps come first: the seams it doesn't
 rate, then the lowest rung up. Without one, the register shows no rungs.
 
 `seams render --status` keeps the file it was given in
-`.sheepdog/seams/status.json`, and reads it when given none. So
+`.seams/status.json`, and reads it when given none. So
 `seams render --check` in the gate draws the same register that was
 committed, and a later render keeps the rungs until a new status file
 replaces them.
@@ -83,7 +82,7 @@ replaces them.
 ## History
 
 `seams render --record` adds today's count, in UTC, to
-`.sheepdog/seams/history.json` (`schemas/history.json`): how many seams
+`.seams/history.json` (`schemas/history.json`): how many seams
 there are, and with a status file how many at each rung. A second record on
 the same day replaces the first. `docs/SEAMS.md` shows the history, so the
 team sees whether coverage keeps pace as seams grow.

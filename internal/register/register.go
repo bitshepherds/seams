@@ -12,8 +12,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bitshepherds/sheepdog-seams/internal/registry"
-	"github.com/bitshepherds/sheepdog-seams/schemas"
+	"github.com/bitshepherds/seams/internal/registry"
+	"github.com/bitshepherds/seams/schemas"
 )
 
 // Top is the coverage ladder's top rung. Rung 0 is no coverage at all.
@@ -35,7 +35,7 @@ func TopOf(s registry.Seam) int {
 
 // DefaultStatus is where seams render keeps the status file it last used, so
 // --check draws the same register.
-const DefaultStatus = ".sheepdog/seams/status.json"
+const DefaultStatus = registry.Dir + "/status.json"
 
 // Status is each seam's rung and gaps, as another tool judged them.
 type Status struct {
@@ -53,6 +53,9 @@ type Rating struct {
 func LoadStatus(path string) (*Status, error) {
 	data, err := os.ReadFile(path) //nolint:gosec // the status file's path is the user's to choose
 	if err != nil {
+		return nil, err
+	}
+	if err := schemas.Renamed(path, data); err != nil {
 		return nil, err
 	}
 	if err := schemas.Validate("status", data); err != nil {

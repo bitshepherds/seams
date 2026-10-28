@@ -92,3 +92,42 @@ func TestSchemasAreCompatibleWithTheLastRelease(t *testing.T) {
 		}
 	}
 }
+
+// TestBreaksAllowsOnlyAMoveOfAddress: the repo's rename moves every schema
+// from bitshepherds/sheepdog-seams to bitshepherds/seams, still v1. That move
+// alone breaks nothing, but it doesn't hide a real break made with it.
+func TestBreaksAllowsOnlyAMoveOfAddress(t *testing.T) {
+	const old = `{"$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/thing/v1", "type": "object",
+		"properties": {
+			"schema": {"const": "https://github.com/bitshepherds/sheepdog-seams/schemas/thing/v1"},
+			"a": {"type": "string"},
+			"other": {"$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/id"}
+		}}`
+	moved := strings.ReplaceAll(old, "https://github.com/bitshepherds/sheepdog-seams/schemas/", "https://github.com/bitshepherds/seams/schemas/")
+	if breaks, err := Breaks([]byte(old), []byte(moved)); err != nil || len(breaks) != 0 {
+		t.Fatalf("a move of address alone: Breaks = %q, %v", breaks, err)
+	}
+	dropped := strings.Replace(moved, `"a": {"type": "string"},`, ``, 1)
+	breaks, err := Breaks([]byte(old), []byte(dropped))
+	if err != nil || len(breaks) != 1 || !strings.Contains(breaks[0], "removes a") {
+		t.Fatalf("a move that also drops a property: Breaks = %q, %v", breaks, err)
+	}
+	elsewhere := strings.ReplaceAll(old, "https://github.com/bitshepherds/sheepdog-seams/schemas/", "https://example.com/seams/schemas/")
+	breaks, err = Breaks([]byte(old), []byte(elsewhere))
+	if err != nil || len(breaks) != 1 || !strings.Contains(breaks[0], "/properties/schema changes its constant") {
+		t.Fatalf("a move to any other address: Breaks = %q, %v", breaks, err)
+	}
+}
+
+func TestRenamedRefusesOnlyAnOldSchemaID(t *testing.T) {
+	err := Renamed("r.json", []byte(`{"schema": "`+OldAddress+`registry/v1"}`))
+	want := "r.json carries the schema id " + OldAddress + "registry/v1, from before seams was renamed. Change it to " + Address + "registry/v1."
+	if err == nil || err.Error() != want {
+		t.Errorf("an old id gave %v", err)
+	}
+	for _, doc := range []string{`{"schema": "` + Address + `registry/v1"}`, `{"schema": 1}`, `{`, `[]`} {
+		if err := Renamed("r.json", []byte(doc)); err != nil {
+			t.Errorf("%s gave %v", doc, err)
+		}
+	}
+}

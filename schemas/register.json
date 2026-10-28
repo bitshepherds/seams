@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bitshepherds/sheepdog-seams/schemas/register/v1",
+  "$id": "https://github.com/bitshepherds/seams/schemas/register/v1",
   "title": "seams show --json, with no id",
   "description": "The register: every registered seam with its characteristics, gaps first when a status file rates them.",
   "type": "object",
   "required": ["schema", "seams"],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "https://github.com/bitshepherds/sheepdog-seams/schemas/register/v1" },
+    "schema": { "const": "https://github.com/bitshepherds/seams/schemas/register/v1" },
     "seams": { "type": "array", "items": { "$ref": "#/$defs/entry" } }
   },
   "$defs": {
@@ -21,12 +21,12 @@
       "required": ["seam", "kind", "crossesOut"],
       "additionalProperties": false,
       "properties": {
-        "seam": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/registry/v1#/$defs/seam" },
+        "seam": { "$ref": "https://github.com/bitshepherds/seams/schemas/registry/v1#/$defs/seam" },
         "kind": { "type": "string", "description": "The kind in the seam's id." },
         "crossesOut": { "type": "boolean", "description": "Whether the seam crosses out of the system: a party is external, or its audience is public." },
-        "rung": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/status/v1#/$defs/rung" },
+        "rung": { "$ref": "https://github.com/bitshepherds/seams/schemas/status/v1#/$defs/rung" },
         "top": { "$ref": "#/$defs/top" },
-        "gaps": { "$ref": "https://github.com/bitshepherds/sheepdog-seams/schemas/status/v1#/$defs/gaps" }
+        "gaps": { "$ref": "https://github.com/bitshepherds/seams/schemas/status/v1#/$defs/gaps" }
       }
     }
   }
